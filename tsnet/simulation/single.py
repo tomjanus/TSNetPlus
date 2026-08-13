@@ -175,6 +175,7 @@ def inner_pipe (linkp, pn, dt, links1, links2, utype, dtype, p,
             H[n], V[n] = add_leakage(emitter_coeff, block_per,linkp, link2, elev,
                 H1, V1, H2, V2, dt, g, n, [1], np.sign(links2),
                 friction, dVdx1, dVdx2, dVdt1, dVdt2)
+                
     elif dtype[0] == 'Pump':
         pumpc = pump[1]
         H[n], V[n] = pump_node(pumpc, linkp, link2,

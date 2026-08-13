@@ -184,7 +184,7 @@ class TransientModel (WaterNetworkModel):
             dt = max_time_step(self)
         self.simulation_period = tf
         self = discretization(self, dt)
-        print('Simulation time step %.5f s' % self.time_step)
+        print('Simulation time step %.5f s' % float(self.time_step))
 
     def set_time_N(self, tf, N=2):
         """Set time step and duration for the simulation.

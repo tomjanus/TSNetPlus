@@ -286,6 +286,7 @@ def inner_node_unsteady(link, H0, V0, dt, g, dVdx, dVdt):
             Js = f*dt/2./D*V1*abs(V1)
         Ju = unsteady_friction(Re, dVdt1, dVdx1, V1, a, g)
         J1 = Js +Ju
+        
         C[0,0] = V1 + ga*H1 - J1 + ga* dt *V1*theta
 
         Re = Reynold(V2, D)
@@ -403,6 +404,7 @@ def inner_node_steady(link, H0, V0, dt, g):
         C = np.zeros((2,2), dtype=np.float64)
 
         J1 = f*dt/2./D*V1*abs(V1)
+        
         C[0,0] = V1 + ga*H1 - J1 + ga* dt *V1*theta
         C[0,1] = ga
 
@@ -1016,7 +1018,7 @@ def add_leakage(emitter_coef, block_per, link1, link2, elev,
         VP = np.float64(-C2[:,0]+ C2[:,1]*HP)
     else:        # pipe end
         VP = np.float64(C1[:,0] - C1[:,1]*HP)
-    return HP, VP
+    return np.asarray(HP).item(), np.asarray(VP).item()
 
 
 def surge_tank(tank, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,

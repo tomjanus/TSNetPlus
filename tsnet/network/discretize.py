@@ -31,11 +31,11 @@ def discretization(tm, dt):
                     a time step that is less than %.5f " %max_dt)
     else :
         Ndis = cal_N(tm, dt)
-
         # add number of segments as a new attribute to each pipe
         i = 0
         for _, pipe in tm.pipes():
-            pipe.number_of_segments = int(Ndis[i])
+            # Casting below enables NDis[i] to be either a single value or an array of size 1
+            pipe.number_of_segments = int(np.asarray(Ndis[i]).item()) 
             i+=1
         # adjust wave speed and calculate time step
         tm = adjust_wavev(tm)
@@ -151,14 +151,15 @@ def adjust_wavev(tm):
     phi = np.array(phi).reshape((len(phi), 1))
     tm.wavespeed_adj = np.sum(phi**2)
     theta = np.longdouble(1/ np.matmul(trans(phi), phi) * \
-        np.matmul(trans(phi), np.ones((len(phi), 1))))
+        np.matmul(trans(phi), np.ones((len(phi), 1)))).item()
 
     # adjust time step
-    dt = np.float64(1/theta)
+    #dt = np.float64(1/theta)
+    dt = np.float64((1 / theta).item())
 
     # adjust the wave speed of each links
     for _, pipe in tm.pipes():
-        pipe.wavev = np.float64(pipe.wavev * phi[int(pipe.id)-1] * theta)
+        pipe.wavev = np.float64(pipe.wavev * phi[int(pipe.id)-1] * theta).item()
 
     # set time step as a new attribute to TransientModel
     tm.time_step =dt

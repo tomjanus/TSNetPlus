@@ -210,11 +210,12 @@ def cal_roughness_coef(pipe, V, hl):
     g = 9.8
     H_tol = 1e-3
     V_tol = 1e-5
+    eps = 1e-6
 
     if abs(V) >= V_tol and hl >= H_tol:
         pipe.roughness = hl / (pipe.length/pipe.diameter) / (V**2/2/g)
     else:
-        pipe.roughness = 0
+        pipe.roughness = eps
 
     if pipe.roughness >0.08:
         warnings.warn("%s :the friction coefficient %.4f is too large. \
