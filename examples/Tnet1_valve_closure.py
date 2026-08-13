@@ -5,6 +5,8 @@ current_file_path = Path(__file__).parent.resolve()
 # Open an example network and create a transient model
 inp_file = current_file_path / 'networks/Tnet1.inp'
 
+tm = tsnet.network.TransientModel(inp_file)
+
 # Set wavespeed
 tm.set_wavespeed(1200.) # m/s
 
