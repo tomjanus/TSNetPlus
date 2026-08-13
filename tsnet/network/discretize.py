@@ -121,7 +121,8 @@ def cal_N(tm,  dt):
     dt : float
         Time step for transient simulation
     """
-    N = np.zeros((tm.num_pipes,1))
+    # N = np.zeros((tm.num_pipes,1)) - old code leadingf to a 2D array
+    N = np.zeros(tm.num_pipes, dtype=int)
 
     for _, pipe in tm.pipes() :
         # N[int(pipe.id)-1] =  int(2*np.int(pipe.length/ (2. * pipe.wavev *dt)))
