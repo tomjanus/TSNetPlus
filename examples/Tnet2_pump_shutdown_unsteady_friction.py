@@ -1,6 +1,9 @@
+from pathlib import Path
 import tsnet
-# open an example network and create a transient model
-inp_file = 'networks/Tnet2.inp'
+# Get the absolute path of the current script file
+current_file_path = Path(__file__).parent.resolve()
+# Open an example network and create a transient model
+inp_file = current_file_path / 'networks/Tnet2.inp'
 tm = tsnet.network.TransientModel(inp_file)
 
 # Set wavespeed

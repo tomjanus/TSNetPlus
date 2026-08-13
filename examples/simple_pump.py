@@ -1,4 +1,5 @@
 import tsnet
+import sys
 # Open an example network and create a transient model
 inp_file = 'networks/simple_pump.inp'
 tm = tsnet.network.TransientModel(inp_file)
@@ -18,10 +19,14 @@ m = 1 # closure constant
 pump_op = [tc,ts,se,m]
 tm.pump_shut_off('pump', pump_op)
 
+
+
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
 tm = tsnet.simulation.Initializer(tm, t0, engine)
+
+sys.exit(0)
 
 # Transient simulation
 results_obj = 'simple_pump' # name of the object for saving simulation results
