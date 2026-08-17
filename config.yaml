@@ -1,0 +1,7 @@
+logging:
+  enabled: true
+  level: INFO
+  rich: true
+  show_time: true
+  show_level: true
+  show_path: true
