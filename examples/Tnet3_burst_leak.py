@@ -27,7 +27,7 @@ tm.add_burst('JUNCTION-20', ts, tc, final_burst_coeff)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0s
 engine = 'PDD' # or Epanet
-tm = tsnet.simulation.Initializer(tm, t0, engine)
+tm = tsnet.simulation.initialize(tm, t0, engine)
 
 # Transient simulation
 result_obj = 'Tnet3' # name of the object for saving simulation results

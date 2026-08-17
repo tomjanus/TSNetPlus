@@ -14,28 +14,31 @@ for different grid configurations, including:
 from __future__ import print_function
 import numpy as np
 import warnings
+from .constants import KINEMATIC_VISCOSITY, ST_GRAVITY
+from .custom_exceptions import InvalidFrictionModelError
 
-def Reynold(V, D):
-    """ Calculate Reynold number
+
+def calculate_Re_number(V: float, D: float, nu: float = KINEMATIC_VISCOSITY) -> float:
+    """ Calculate Reynold's number
 
     Parameters
     ----------
     V : float
-        velocity
+        velocity, m/s
     D : float
-        diameter
+        diameter, m
+    nu: float
+        kinematic viscosity of water, default is 1.004e-6 m^2/s
 
     Returns
     -------
     Re : float
-        Reynold number
+        Reynold's number
     """
-    nu = 1.004e-6  # kinematic viscosity [m^2/s]
-    Re = np.abs(V*D/nu)
+    return np.abs(V*D/nu)
 
-    return Re
 
-def quasi_steady_friction_factor(Re, KD):
+def quasi_steady_friction_factor(Re: float, KD: float) -> float:
     """ Update friction factor based on Reynold number
 
     Parameters
@@ -50,13 +53,12 @@ def quasi_steady_friction_factor(Re, KD):
     f : float
         quasi-steady friction factor
     """
-
     a = -1.8*np.log10(6.9/Re + KD)
     f = (1./a)**2.
     return f
 
 
-def unsteady_friction(Re, dVdt, dVdx, V, a, g):
+def unsteady_friction(Re: float, dVdt: float, dVdx: float, V: float, a: float) -> float:
     """ Calculate unsteady friction
 
     Parameters
@@ -71,8 +73,6 @@ def unsteady_friction(Re, dVdt, dVdx, V, a, g):
         velocity
     a : float
         wave speed
-    g: float
-        gravitational acceleration
 
     Returns
     -------
@@ -89,10 +89,21 @@ def unsteady_friction(Re, dVdt, dVdx, V, a, g):
     # calculate Brunone's friction coefficient
     k = np.sqrt(C)/2.
     " TO DO: check the sign of unsteady friction"
-    Ju = k/g/2.* (dVdt + a* np.sign(V) * np.abs(dVdx))
+    Ju = k/ST_GRAVITY/2.* (dVdt + a* np.sign(V) * np.abs(dVdx))
     return Ju
 
-def cal_friction(friction, f, D, V, KD, dt, dVdt, dVdx, a, g ):
+
+def cal_friction(
+        friction: str,
+        f: float,
+        D: float,
+        V: float,
+        KD: float,
+        dt: float,
+        dVdt: float,
+        dVdx: float,
+        a: float,
+        tol: float = 1.0) -> float:
     """ Calculate friction term
 
     Parameters
@@ -103,9 +114,9 @@ def cal_friction(friction, f, D, V, KD, dt, dVdt, dVdx, a, g ):
     f : float
         steady friction factor
     D : float
-        pipe diameter
+        pipe diameter, m
     V : float
-        pipe flow velocity
+        pipe flow velocity, m/s
     KD : float
         relative roughness height
     dt : float
@@ -115,34 +126,35 @@ def cal_friction(friction, f, D, V, KD, dt, dVdt, dVdx, a, g ):
     dVdx : float
         convective instantaneous acceleration
     a : float
-        wave speed
-    g : float
-        gravitational accelerations
+        wave speed, m/s
 
     Returns
     -------
     float
         total friction, including steady and unsteady
     """
-    tol = 1
-
     if friction == 'steady':
-        Ju = 0
+        Ju = 0.0
         Js = f*dt/2./D*V*abs(V) #steady friction
+        return Ju + Js
+    # In case of unsteady or quasi-steady friction, calculate Reynold's number
+    Re = calculate_Re_number(V, D)
+    if Re < tol:
+        Js = 0
     else:
-        Re = Reynold(V, D)
-        if Re < tol:
-            Js = 0
-        else:
-            f = quasi_steady_friction_factor(Re, KD)
-            Js = f*dt/2./D*V*abs(V)
-        if friction == 'quasi-steady':
-            Ju = 0
-        elif friction == 'unsteady':
-            Ju = unsteady_friction(Re, dVdt, dVdx, V, a, g)
-    return Ju + Js
+        f = quasi_steady_friction_factor(Re, KD)
+        Js = f*dt/2./D*V*abs(V)
+    if friction == 'quasi-steady':
+        Ju = 0.0
+        return Js + Ju
+    if friction == 'unsteady':
+        Ju = unsteady_friction(Re, dVdt, dVdx, V, a)
+        return Js + Ju
+    raise InvalidFrictionModelError(
+        f"Invalid friction model: {friction}. Must be 'steady', 'quasi-steady', or 'unsteady'.")
 
-def cal_Cs( link1, link2, H1, V1, H2, V2, s1, s2, g, dt,
+
+def cal_Cs( link1, link2, H1, V1, H2, V2, s1, s2, dt,
             friction, dVdx1, dVdx2, dVdt1, dVdt2):
     """Calculate coefficients for MOC characteristic lines
 
@@ -168,8 +180,6 @@ def cal_Cs( link1, link2, H1, V1, H2, V2, s1, s2, g, dt,
         in C- charateristics curve
     dt : float
         Time step
-    g : float
-        Gravity acceleration
     friction : str
         friction model, e.g., 'steady', 'quasi-steady', 'unsteady',
         by default 'steady'
@@ -210,9 +220,9 @@ def cal_Cs( link1, link2, H1, V1, H2, V2, s1, s2, g, dt,
     for i in range(len(link1)):
         # J = f1[i]*dt/2./D1[i]*V1[i]*abs(V1[i])
         J = cal_friction(friction, f1[i], D1[i], V1[i], KD1[i],
-            dt, dVdt1[i], dVdx1[i], a1[i], g )
-        C1[i,0] = s1[i]*V1[i] + g/a1[i]*H1[i] - s1[i]*J + g/a1[i]* dt *V1[i]*theta1[i]
-        C1[i,1] = g/a1[i]
+            dt, dVdt1[i], dVdx1[i], a1[i])
+        C1[i,0] = s1[i]*V1[i] + ST_GRAVITY/a1[i]*H1[i] - s1[i]*J + ST_GRAVITY/a1[i]* dt *V1[i]*theta1[i]
+        C1[i,1] = ST_GRAVITY/a1[i]
 
     # property of right adjacent pipe
     f2 = [link2[i].roughness  for i in range(len(link2))]      # unitless
@@ -226,15 +236,15 @@ def cal_Cs( link1, link2, H1, V1, H2, V2, s1, s2, g, dt,
     for i in range(len(link2)):
         # J = f2[i]*dt/2./D2[i]*V2[i]*abs(V2[i])
         J = cal_friction(friction, f2[i], D2[i], V2[i], KD2[i],
-            dt, dVdt2[i], dVdx2[i], a2[i], g)
-        C2[i,0] = s2[i]*V2[i] + g/a2[i]*H2[i] - s2[i]* J + g/a2[i]* dt *V2[i]*theta2[i]
-        C2[i,1] = g/a2[i]
+            dt, dVdt2[i], dVdx2[i], a2[i])
+        C2[i,0] = s2[i]*V2[i] + ST_GRAVITY/a2[i]*H2[i] - s2[i]* J + ST_GRAVITY/a2[i]* dt *V2[i]*theta2[i]
+        C2[i,1] = ST_GRAVITY/a2[i]
 
     return A1, A2, C1, C2
 
 
 
-def inner_node_unsteady(link, H0, V0, dt, g, dVdx, dVdt):
+def inner_node_unsteady(link, H0, V0, dt, dVdx, dVdt):
     """Inner boundary MOC using C+ and C- characteristic curve with unsteady friction
 
     Parameters
@@ -247,8 +257,6 @@ def inner_node_unsteady(link, H0, V0, dt, g, dVdx, dVdt):
         velocity at previous time step
     dt : float
         Time step
-    g : float
-        Gravity acceleration
     dVdx : list
         List of convective instantaneous acceleration
     dVdt : list
@@ -269,7 +277,7 @@ def inner_node_unsteady(link, H0, V0, dt, g, dVdx, dVdt):
     # A = np.pi * D**2. / 4.  # m^2
     theta = link.theta
     KD = link.roughness_height
-    ga = g/a
+    ga = ST_GRAVITY/a
     tol = 1e-1
     for i in range(1,len(H0)-1):
         V1 = V0[i-1]; H1 = H0[i-1]
@@ -278,24 +286,24 @@ def inner_node_unsteady(link, H0, V0, dt, g, dVdx, dVdt):
         dVdt1 = dVdt[i-1] ; dVdt2 = dVdt[i+1]
         C = np.zeros((2,1), dtype=np.float64)
 
-        Re = Reynold(V1, D)
+        Re = calculate_Re_number(V1, D)
         if Re <tol:
             Js =  0
         else:
             f = quasi_steady_friction_factor(Re, KD)
             Js = f*dt/2./D*V1*abs(V1)
-        Ju = unsteady_friction(Re, dVdt1, dVdx1, V1, a, g)
+        Ju = unsteady_friction(Re, dVdt1, dVdx1, V1, a)
         J1 = Js +Ju
         
         C[0,0] = V1 + ga*H1 - J1 + ga* dt *V1*theta
 
-        Re = Reynold(V2, D)
+        Re = calculate_Re_number(V2, D)
         if Re < tol:
             Js =  0
         else:
             f = quasi_steady_friction_factor(Re, KD)
             Js = f*dt/2./D*V2*abs(V2)
-        Ju = unsteady_friction(Re, dVdt2, dVdx2, V2, a, g)
+        Ju = unsteady_friction(Re, dVdt2, dVdx2, V2, a)
         J2 = Js +Ju
         C[1,0] = -V2+ ga*H2 + J2 + ga* dt *V2*theta
 
@@ -304,7 +312,7 @@ def inner_node_unsteady(link, H0, V0, dt, g, dVdx, dVdt):
 
     return HP[1:-1], VP[1:-1]
 
-def inner_node_quasisteady(link, H0, V0, dt, g):
+def inner_node_quasisteady(link, H0, V0, dt):
     """Inner boundary MOC using C+ and C- characteristic curve with unsteady friction
 
     Parameters
@@ -317,8 +325,6 @@ def inner_node_quasisteady(link, H0, V0, dt, g):
         velocity at previous time step
     dt : float
         Time step
-    g : float
-        Gravity acceleration
     dVdx : list
         List of convective instantaneous acceleration
     dVdt : list
@@ -337,7 +343,7 @@ def inner_node_quasisteady(link, H0, V0, dt, g):
     a = link.wavev        # m/s
     theta = link.theta
     KD = link.roughness_height
-    ga = g/a
+    ga = ST_GRAVITY/a
     tol = 1e-1
 
     for i in range(1,len(H0)-1):
@@ -345,14 +351,14 @@ def inner_node_quasisteady(link, H0, V0, dt, g):
         V2 = V0[i+1]; H2 = H0[i+1]
         C = np.zeros((2,1), dtype=np.float64)
 
-        Re = Reynold(V1, D)
+        Re = calculate_Re_number(V1, D)
         if Re < tol:
             J1 = 0
         else:
             f = quasi_steady_friction_factor(Re, KD)
             J1 = f*dt/2./D*V1*abs(V1)
 
-        Re = Reynold(V2, D)
+        Re = calculate_Re_number(V2, D)
         if Re < tol:
             J2 = 0
         else:
@@ -367,7 +373,7 @@ def inner_node_quasisteady(link, H0, V0, dt, g):
 
     return HP[1:-1], VP[1:-1]
 
-def inner_node_steady(link, H0, V0, dt, g):
+def inner_node_steady(link, H0, V0, dt):
     """Inner boundary MOC using C+ and C- characteristic curve with unsteady friction
 
     Parameters
@@ -380,8 +386,7 @@ def inner_node_steady(link, H0, V0, dt, g):
         velocity at previous time step
     dt : float
         Time step
-    g : float
-        Gravity acceleration
+
     Returns
     -------
     HP : float
@@ -397,7 +402,7 @@ def inner_node_steady(link, H0, V0, dt, g):
     a = link.wavev        # m/s
     # A = np.pi * D**2. / 4.  # m^2
     theta = link.theta
-    ga = g/a
+    ga = ST_GRAVITY/a
     for i in range(1,len(H0)-1):
         V1 = V0[i-1]; H1 = H0[i-1]
         V2 = V0[i+1]; H2 = H0[i+1]
@@ -417,7 +422,7 @@ def inner_node_steady(link, H0, V0, dt, g):
 
     return HP[1:-1], VP[1:-1]
 
-def valve_node(KL_inv, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
+def valve_node(KL_inv, link1, link2, H1, V1, H2, V2, dt, nn, s1, s2,
                 friction, dVdx1, dVdx2, dVdt1, dVdt2):
     """Inline valve node MOC calculation
 
@@ -439,8 +444,6 @@ def valve_node(KL_inv, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
         List of the velocity of C- charateristics curve
     dt : float
         Time step
-    g : float
-        Gravity acceleration
     nn : int
         The index of the calculation node
     s1 : list
@@ -480,13 +483,13 @@ def valve_node(KL_inv, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
         V2 = [V2] ; H2 = [H2]
         dVdx2 = [dVdx2]; dVdt2 = [dVdt2]
 
-    A1, A2, C1, C2 = cal_Cs(link1, link2, H1, V1, H2, V2, s1, s2, g, dt,
+    A1, A2, C1, C2 = cal_Cs(link1, link2, H1, V1, H2, V2, s1, s2, dt,
             friction, dVdx1, dVdx2, dVdt1, dVdt2)
 
     # parameters of the quadratic polynomial
     aq = 1
-    bq = 2*g*KL_inv* (A2[0]/A1[0]/C1[0,1] + 1/C2[0,1])
-    cq = 2*g*KL_inv* (C2[0,0]/C2[0,1] - C1[0,0]/C1[0,1])
+    bq = 2*ST_GRAVITY*KL_inv* (A2[0]/A1[0]/C1[0,1] + 1/C2[0,1])
+    cq = 2*ST_GRAVITY*KL_inv* (C2[0,0]/C2[0,1] - C1[0,0]/C1[0,1])
 
     # solve the quadratic equation
     delta = bq**2 - 4*aq*cq
@@ -511,8 +514,8 @@ def valve_node(KL_inv, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
         # reconstruct the quadratic equation
         # parameters of the quadratic polynomial
         aq = 1
-        bq = 2*g*KL_inv* (-A1[0]/A2[0]/C2[0,1]-1/C1[0,1])
-        cq = 2*g*KL_inv* (-C2[0,0]/C2[0,1]+C1[0,0]/C1[0,1])
+        bq = 2*ST_GRAVITY*KL_inv* (-A1[0]/A2[0]/C2[0,1]-1/C1[0,1])
+        cq = 2*ST_GRAVITY*KL_inv* (-C2[0,0]/C2[0,1]+C1[0,0]/C1[0,1])
 
         # solve the quadratic equation
         delta = bq**2 - 4*aq*cq
@@ -534,7 +537,7 @@ def valve_node(KL_inv, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
     return HP, VP
 
 
-def pump_node(pumpc,link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
+def pump_node(pumpc,link1, link2, H1, V1, H2, V2, dt, nn, s1, s2,
                 friction, dVdx1, dVdx2, dVdt1, dVdt2):
     """ Inline pump node MOC calculation
 
@@ -558,8 +561,6 @@ def pump_node(pumpc,link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
         List of the velocity of C- charateristics curve
     dt : float
         Time step
-    g : float
-        Gravity acceleration
     nn : int
         The index of the calculation node
     s1 : list
@@ -599,7 +600,7 @@ def pump_node(pumpc,link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
         V2 = [V2] ; H2 = [H2]
         dVdx2 = [dVdx2]; dVdt2 = [dVdt2]
 
-    A1, A2, C1, C2 = cal_Cs( link1, link2, H1, V1, H2, V2, s1, s2, g, dt,
+    A1, A2, C1, C2 = cal_Cs( link1, link2, H1, V1, H2, V2, s1, s2, dt,
             friction, dVdx1, dVdx2, dVdt1, dVdt2)
 
     # pump power function
@@ -668,7 +669,7 @@ def pump_node(pumpc,link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
 
     return HP, VP
 
-def source_pump(pump, link2, H2, V2, dt, g, s2,
+def source_pump(pump, link2, H2, V2, dt, s2,
                 friction, dVdx2, dVdt2):
     """Source Pump boundary MOC calculation
 
@@ -687,8 +688,6 @@ def source_pump(pump, link2, H2, V2, dt, g, s2,
         List of the velocity of C- charateristics curve
     dt : float
         Time step
-    g : float
-        Gravity acceleration
     s2 : list
         List of signs that represent the direction of the flow
         in C- charateristics curve
@@ -711,7 +710,7 @@ def source_pump(pump, link2, H2, V2, dt, g, s2,
         V2 = [V2] ; H2 = [H2]
         dVdx2 = [dVdx2]; dVdt2 = [dVdt2]
 
-    _, A2, _, C2 = cal_Cs( link2, link2, H2, V2, H2, V2, s2, s2, g, dt,
+    _, A2, _, C2 = cal_Cs( link2, link2, H2, V2, H2, V2, s2, s2, dt,
             friction, dVdx2, dVdx2, dVdt2, dVdt2)
 
     # pump power function
@@ -749,7 +748,7 @@ def source_pump(pump, link2, H2, V2, dt, g, s2,
 
 
 
-def valve_end(H1, V1, V, nn, a, g, f, D, dt,
+def valve_end(H1, V1, V, nn, a, f, D, dt,
              KD, friction, dVdx2, dVdt2):
     """ End Valve boundary MOC calculation
 
@@ -765,8 +764,6 @@ def valve_end(H1, V1, V, nn, a, g, f, D, dt,
         The index of the calculation node
     a : float
         Wave speed at the valve end
-    g : float
-        Gravity acceleration
     f : float
         friction factor of the current pipe
     D : float
@@ -785,17 +782,17 @@ def valve_end(H1, V1, V, nn, a, g, f, D, dt,
         List of local instantaneous acceleration on the
         C- characteristic curve
     """
-    J = cal_friction(friction, f, D, V, KD, dt, dVdt2, dVdx2, a, g )
+    J = cal_friction(friction, f, D, V, KD, dt, dVdt2, dVdx2, a)
     if nn == 0 :
-        # HP = H1 + a/g*(V - V1) + a/g*f*dt/(2.*D)*V1*abs(V1)
-        HP = H1 + a/g*(V - V1) + a/g*J
+        # HP = H1 + a/ST_GRAVITY*(V - V1) + a/ST_GRAVITY*f*dt/(2.*D)*V1*abs(V1)
+        HP = H1 + a/ST_GRAVITY*(V - V1) + a/ST_GRAVITY*J
         VP = V
     else :
-        HP = H1 - a/g*(V - V1) - a/g*J
+        HP = H1 - a/ST_GRAVITY*(V - V1) - a/ST_GRAVITY*J
         VP = V
     return HP,VP
 
-def dead_end(linkp, H1, V1, elev, nn, a, g, f, D, dt,
+def dead_end(linkp, H1, V1, elev, nn, a, f, D, dt,
             KD, friction, dVdx1, dVdt1):
     """Dead end boundary MOC calculation with pressure dependant demand
 
@@ -813,8 +810,6 @@ def dead_end(linkp, H1, V1, elev, nn, a, g, f, D, dt,
         The index of the calculation node
     a : float
         Wave speed at the valve end
-    g : float
-        Gravity acceleration
     f : float
         friction factor of the current pipe
     D : float
@@ -835,13 +830,13 @@ def dead_end(linkp, H1, V1, elev, nn, a, g, f, D, dt,
     """
 
     A = np.pi/4. * linkp.diameter**2.
-    J = cal_friction(friction, f, D, V1, KD, dt, dVdt1, dVdx1, a, g )
+    J = cal_friction(friction, f, D, V1, KD, dt, dVdt1, dVdx1, a)
     if nn == 0: # dead end is the start node of a pipe
         k = linkp.start_node.demand_coeff + linkp.start_node.emitter_coeff
         aq = 1
-        bq = -a/g*k/A
-        # cq = a/g *V1 - a/g*f*dt/(2.*D)*V1*abs(V1) - H1 - g/a*dt*V1*linkp.theta + elev
-        cq = a/g *V1 - a/g*J - H1 - g/a*dt*V1*linkp.theta + elev
+        bq = -a/ST_GRAVITY*k/A
+        # cq = a/ST_GRAVITY *V1 - a/ST_GRAVITY*f*dt/(2.*D)*V1*abs(V1) - H1 - ST_GRAVITY/a*dt*V1*linkp.theta + elev
+        cq = a/ST_GRAVITY *V1 - a/ST_GRAVITY*J - H1 - ST_GRAVITY/a*dt*V1*linkp.theta + elev
         # solve the quadratic equation
         delta = bq**2. - 4.*aq*cq
         if delta >= 0:
@@ -855,13 +850,13 @@ def dead_end(linkp, H1, V1, elev, nn, a, g, f, D, dt,
             HP = HP**2. +elev
             warnings.warn("""The quadratic equation has no real solution (dead end).
                             The results might not be accurate.""")
-        VP = V1 - g/a*H1 - f*dt/(2.*D)*V1*abs(V1) + g/a*HP - g/a*dt*V1*linkp.theta
+        VP = V1 - ST_GRAVITY/a*H1 - f*dt/(2.*D)*V1*abs(V1) + ST_GRAVITY/a*HP - ST_GRAVITY/a*dt*V1*linkp.theta
     else : # dead end is the end node of a pipe
         k = linkp.end_node.demand_coeff + linkp.end_node.emitter_coeff
         aq = 1
-        bq = a/g*k/A
-        # cq = -a/g *V1 + a/g*f*dt/(2.*D)*V1*abs(V1) - H1 - g/a*dt*V1*linkp.theta + elev
-        cq = -a/g *V1 + a/g*J - H1 - g/a*dt*V1*linkp.theta + elev
+        bq = a/ST_GRAVITY*k/A
+        # cq = -a/ST_GRAVITY *V1 + a/ST_GRAVITY*f*dt/(2.*D)*V1*abs(V1) - H1 - ST_GRAVITY/a*dt*V1*linkp.theta + elev
+        cq = -a/ST_GRAVITY *V1 + a/ST_GRAVITY*J - H1 - ST_GRAVITY/a*dt*V1*linkp.theta + elev
         # solve the quadratic equation
         delta = bq**2. - 4.*aq*cq
         if delta >= 0:
@@ -875,10 +870,10 @@ def dead_end(linkp, H1, V1, elev, nn, a, g, f, D, dt,
             HP = HP**2. + elev
             warnings.warn("The quadratic equation has no real solution (dead end).\
 The results might not be accurate.")
-        VP = V1 + g/a *H1 - f*dt/(2.*D)*V1*abs(V1) - g/a*HP + g/a*dt*V1*linkp.theta
+        VP = V1 + ST_GRAVITY/a *H1 - f*dt/(2.*D)*V1*abs(V1) - ST_GRAVITY/a*HP + ST_GRAVITY/a*dt*V1*linkp.theta
     return HP,VP
 
-def rev_end( H2, V2, H, nn, a, g, f, D, dt,
+def rev_end( H2, V2, H, nn, a, f, D, dt,
             KD, friction, dVdx2, dVdt2):
     """Reservoir/ Tank boundary MOC calculation
 
@@ -894,8 +889,6 @@ def rev_end( H2, V2, H, nn, a, g, f, D, dt,
         The index of the calculation node
     a : float
         Wave speed at the valve end
-    g : float
-        Gravity acceleration
     f : float
         friction factor of the current pipe
     D : float
@@ -914,17 +907,17 @@ def rev_end( H2, V2, H, nn, a, g, f, D, dt,
         List of local instantaneous acceleration on the
         C- characteristic curve
     """
-    J = cal_friction(friction, f, D, V2, KD, dt, dVdt2, dVdx2, a, g )
+    J = cal_friction(friction, f, D, V2, KD, dt, dVdt2, dVdx2, a)
     if nn == 0 :
-        VP = V2 + g/a*(H - H2) - J
+        VP = V2 + ST_GRAVITY/a*(H - H2) - J
         HP = H
     else:
-        VP = V2 - g/a*(H - H2) - J
+        VP = V2 - ST_GRAVITY/a*(H - H2) - J
         HP = H
     return HP, VP
 
 def add_leakage(emitter_coef, block_per, link1, link2, elev,
-                 H1, V1, H2, V2, dt, g, nn, s1, s2,
+                 H1, V1, H2, V2, dt, nn, s1, s2,
                  friction, dVdx1=0, dVdx2=0, dVdt1=0, dVdt2=0):
     r"""Leakage Node MOC calculation
 
@@ -949,8 +942,6 @@ def add_leakage(emitter_coef, block_per, link1, link2, elev,
         List of the velocity of C- charateristics curve
     dt : float
         Time step
-    g : float
-        Gravity acceleration
     nn : int
         The index of the calculation node
     s1 : list
@@ -991,7 +982,7 @@ def add_leakage(emitter_coef, block_per, link1, link2, elev,
         V2 = [V2] ; H2 = [H2]
         dVdx2 = [dVdx2]; dVdt2 = [dVdt2]
 
-    A1, A2, C1, C2 = cal_Cs(link1, link2, H1, V1, H2, V2, s1, s2, g, dt,
+    A1, A2, C1, C2 = cal_Cs(link1, link2, H1, V1, H2, V2, s1, s2, dt,
             friction, dVdx1, dVdx2, dVdt1, dVdt2)
 
     a = np.dot(C1[:,0], A1) + np.dot(C2[:,0],A2)
@@ -1021,7 +1012,7 @@ def add_leakage(emitter_coef, block_per, link1, link2, elev,
     return np.asarray(HP).item(), np.asarray(VP).item()
 
 
-def surge_tank(tank, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
+def surge_tank(tank, link1, link2, H1, V1, H2, V2, dt, nn, s1, s2,
                 friction, dVdx1, dVdx2, dVdt1, dVdt2):
 
     """Surge tank node MOC calculation
@@ -1048,8 +1039,6 @@ def surge_tank(tank, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
         List of the velocity of C- charateristics curve
     dt : float
         Time step
-    g : float
-        Gravity acceleration
     nn : int
         The index of the calculation node
     s1 : list
@@ -1088,7 +1077,7 @@ def surge_tank(tank, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
         V2 = [V2] ; H2 = [H2]
         dVdx2 = [dVdx2]; dVdt2 = [dVdt2]
 
-    A1, A2, C1, C2 = cal_Cs(link1, link2, H1, V1, H2, V2, s1, s2, g, dt,
+    A1, A2, C1, C2 = cal_Cs(link1, link2, H1, V1, H2, V2, s1, s2, dt,
             friction, dVdx1, dVdx2, dVdt1, dVdt2)
 
     As, z, Qs = tank
@@ -1110,7 +1099,7 @@ def surge_tank(tank, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
     
     
 
-def air_chamber(tank, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
+def air_chamber(tank, link1, link2, H1, V1, H2, V2, dt, nn, s1, s2,
                 friction, dVdx1, dVdx2, dVdt1, dVdt2):
 
     """Surge tank node MOC calculation
@@ -1139,8 +1128,6 @@ def air_chamber(tank, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
         List of the velocity of C- charateristics curve
     dt : float
         Time step
-    g : float
-        Gravity acceleration
     nn : int
         The index of the calculation node
     s1 : list
@@ -1179,7 +1166,7 @@ def air_chamber(tank, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
         V2 = [V2] ; H2 = [H2]
         dVdx2 = [dVdx2]; dVdt2 = [dVdt2]
 
-    A1, A2, C1, C2 = cal_Cs(link1, link2, H1, V1, H2, V2, s1, s2, g, dt,
+    A1, A2, C1, C2 = cal_Cs(link1, link2, H1, V1, H2, V2, s1, s2, dt,
             friction, dVdx1, dVdx2, dVdt1, dVdt2)
     # parameters
     Hb = 10.3 # barometric pressure head

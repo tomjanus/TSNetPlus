@@ -5,16 +5,30 @@ simulation for the given .inp file.
 
 """
 from __future__ import print_function
+import warnings
+import logging
+from datetime import datetime
+from typing import Literal, TypeAlias
+import pickle
+import numpy as np
 from tsnet.network import  topology
 from tsnet.simulation.single import inner_pipe, left_boundary, right_boundary
 from tsnet.utils import valve_curve, memo, print_time_delta
-from tsnet.utils import calc_parabola_vertex
-import numpy as np
-import warnings
-from datetime import datetime
-import pickle
+from tsnet.utils import calc_parabola_vertex, configure_logging
+from tsnet.kernels import get_kernels, KernelSet
 
-def MOCSimulator(tm, results_obj='results', friction='steady'):
+
+KernelType: TypeAlias = Literal['python', 'numba', 'cython']
+
+
+logger = logging.getLogger(__name__)
+
+
+def MOCSimulator(
+        tm,
+        results_obj='results',
+        friction='steady',
+        kernel: KernelType = 'python'):
     """ MOC Main Function
 
     Parameters
@@ -26,6 +40,10 @@ def MOCSimulator(tm, results_obj='results', friction='steady'):
     friction: string, optional
         friction model, e.g., 'steady', 'quasi-steady', 'unsteady',
         by default 'steady'
+    kernel: KernelType, optional
+        computational kernel used by MOC simulator. Three kernels are
+        available: 'python', 'numba', 'cython'
+
     Returns
     ------
     tm : tsnet.network.model.TransientModel
@@ -39,7 +57,7 @@ def MOCSimulator(tm, results_obj='results', friction='steady'):
     dt = tm.time_step
     tn = int(tm.simulation_period/tm.time_step)  # Total time steps
     # check whether input is legal
-    if not friction in ['steady', 'unsteady', 'quasi-steady']:
+    if friction not in ['steady', 'unsteady', 'quasi-steady']:
         print ("Please specify a friction model from 'steady', 'unsteady', and 'quasi-steady'")
 
     # determine which node of the adjacent pipe should be call:
@@ -106,13 +124,13 @@ def MOCSimulator(tm, results_obj='results', friction='steady'):
         if ts == 3:
             timeperstep = (datetime.now() - starttime) /2.
             est = timeperstep *tn
-            print ('Estimated simulation time %s' %est)
+            logger.info('Estimated simulation time %s' %est)
 
         t = ts*dt
         tt.append(t)
         tp = ts/tn*100
         if ts % int(tn/10) == 0 :
-            print('Transient simulation completed %i %%...' %tp )
+            logger.info('Transient simulation completed %i %%...' %tp )
         # for burst node: emitter_coeff = burst_coeff[ts]
         for _,node in tm.nodes():
             if node.burst_status == True:
@@ -450,10 +468,8 @@ def MOCSimulator(tm, results_obj='results', friction='steady'):
 
     tm.simulation_timestamps = tt[1:]
 
-
     # save object to file
     if results_obj != 'no':
-        import pickle
         filehandler = open(results_obj +'.obj','wb')
         pickle.dump(tm, filehandler)
     else:

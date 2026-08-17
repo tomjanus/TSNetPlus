@@ -23,7 +23,7 @@ tm.valve_closure('VALVE',[tc,ts,se,m])
 
 # Initialize steady state simulation
 t0=0
-tm = tsnet.simulation.Initializer(tm,t0)
+tm = tsnet.simulation.initialize(tm,t0)
 
 # Transient simulation
 tm = tsnet.simulation.MOCSimulator(tm)

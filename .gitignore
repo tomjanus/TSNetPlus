@@ -114,3 +114,6 @@ temp.*
 
 # obj results
 *.obj
+
+# Examples outputs
+examples/*.pdf

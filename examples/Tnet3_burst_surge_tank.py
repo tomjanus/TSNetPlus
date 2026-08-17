@@ -23,7 +23,7 @@ tm.add_burst('JUNCTION-73', ts, tc, final_burst_coeff)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0s
 engine = 'DD' # or Epanet
-tm = tsnet.simulation.Initializer(tm, t0, engine)
+tm = tsnet.simulation.initialize(tm, t0, engine)
 
 # Transient simulation
 result_obj = 'Tnet3' # name of the object for saving simulation results
@@ -47,7 +47,7 @@ tm.add_burst('JUNCTION-73', ts, tc, final_burst_coeff)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0s
 engine = 'DD' # or Epanet
-tm = tsnet.simulation.Initializer(tm, t0, engine)
+tm = tsnet.simulation.initialize(tm, t0, engine)
 
 # add air chamber
 tank_node = 'JUNCTION-89'
@@ -79,7 +79,7 @@ tm.add_burst('JUNCTION-73', ts, tc, final_burst_coeff)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0s
 engine = 'DD' # or Epanet
-tm = tsnet.simulation.Initializer(tm, t0, engine)
+tm = tsnet.simulation.initialize(tm, t0, engine)
 
 # add air chamber
 tank_node = 'JUNCTION-89'

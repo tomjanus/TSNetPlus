@@ -17,7 +17,7 @@ tm.set_time(tf,dt)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
-tm = tsnet.simulation.Initializer(tm, t0, engine)
+tm = tsnet.simulation.initialize(tm, t0, engine)
 
 # Add demand pulse
 tc = 1 # total demand period [s]
@@ -47,7 +47,7 @@ tm.set_time(tf,dt)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
-tm = tsnet.simulation.Initializer(tm, t0, engine)
+tm = tsnet.simulation.initialize(tm, t0, engine)
 
 # Add demand pulse
 tc = 1 # total demand period [s]

@@ -4,4 +4,7 @@ using MOC method
 
 """
 from .main import MOCSimulator
-from .initialize import Initializer
+from .initialize import initialize
+
+
+__all__ = ['MOCSimulator', 'initialize']

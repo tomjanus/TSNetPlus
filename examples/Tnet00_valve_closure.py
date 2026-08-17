@@ -24,7 +24,7 @@ tm.valve_closure('3',valve_op)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
-tm = tsnet.simulation.Initializer(tm, t0, engine)
+tm = tsnet.simulation.initialize(tm, t0, engine)
 
 # Transient simulation
 results_obj = 'Tnet0' # name of the object for saving simulation results
