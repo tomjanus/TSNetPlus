@@ -111,6 +111,7 @@ def max_time_step_N(tm, N):
             max_dt = dt #- 1e-5  # avoid numerical issue which cause N = 0
     return max_dt
 
+
 def cal_N(tm,  dt):
     """Determine the number of computation unites ($N_i$) for each pipes.
 

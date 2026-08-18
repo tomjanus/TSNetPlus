@@ -6,14 +6,17 @@ simulation later in tsnet.
 """
 
 from __future__ import print_function
+from typing import TypeAlias
+import logging
+import warnings
 import wntr
 from wntr.network.elements import LinkStatus
+import matplotlib
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-import logging
-import warnings
 from wntr.network import WaterNetworkModel
+from rich import print as rprint
 from tsnet.network.discretize import (
     discretization, max_time_step,
     discretization_N, max_time_step_N)
@@ -27,10 +30,14 @@ from tsnet.network.control import (
 )
 from tsnet.postprocessing import detect_cusum
 
+Axes: TypeAlias = matplotlib.axes.Axes
+
 logger = logging.getLogger(__name__)
 
-class TransientModel (WaterNetworkModel):
+
+class TransientModel(WaterNetworkModel):
     """ Transient model class.
+    
     Parameters
     -------------------
     inp_file_name: string
@@ -38,24 +45,23 @@ class TransientModel (WaterNetworkModel):
         WaterNetworkModel object.
     """
 
-    def __init__ (self, inp_file):
+    def __init__ (self, inp_file: str) -> None:
         super().__init__(inp_file)
         self.simulation_timestamps = []
         self.time_step = 0.
         self.simulation_period = 0.
         self.initial_velocity = []
         self.initial_head = []
+
         # assign ID to each links, start from 1.
-        i =1
-        for _, link in self.links():
-            link.id = i
-            i+=1
+        for ix, (_, link) in enumerate(self.links()):
+            link.id = ix + 1
         for _,valve in self.valves():
             valve.valve_coeff = None
+
         # assign ID to each links, start from 1.
-        i =1
-        for _, node in self.nodes():
-            node.id = i
+        for ix, (_, node) in enumerate(self.nodes()):
+            node.id = ix + 1
             node._leak_status = False
             node.burst_status = False
             node.blockage_status = False
@@ -63,7 +69,6 @@ class TransientModel (WaterNetworkModel):
             node.emitter_coeff = 0.
             node.block_per = 0.
             node.transient_node_type = node.node_type
-            i+=1
 
         # calculate the slope and area for each pipe
         for _, pipe in self.pipes():
@@ -71,7 +76,7 @@ class TransientModel (WaterNetworkModel):
             try:
                 theta = np.sin(np.arctan(pipe.end_node.elevation -
                     pipe.start_node.elevation)/pipe.length)
-            except:
+            except AttributeError:
                 theta = 0.0
             pipe.theta = theta
 
@@ -79,7 +84,10 @@ class TransientModel (WaterNetworkModel):
         for _, link in self.links():
             link.operating = False
 
-    def set_wavespeed(self, wavespeed=1200, pipes=None):
+    def set_wavespeed(
+            self,
+            wavespeed: float = 1200,
+            pipes: str | list[str] = None) -> None:
         """Set wave speed for pipes in the network
 
         Parameters
@@ -93,7 +101,7 @@ class TransientModel (WaterNetworkModel):
             by default all pipe in the network.
         """
         generator = 0
-        if pipes == None :
+        if pipes is None :
             generator = 1
             pipes = self.pipes()
             num_pipes = self.num_pipes
@@ -114,7 +122,7 @@ class TransientModel (WaterNetworkModel):
             raise ValueError('Wavespeed should be a float or a list')
 
         # assign wave speed to each pipes
-        i= 0
+        i: int = 0
         if generator == 1:
             for _, pipe in pipes:
                 pipe.wavev = wavespeed[i]
@@ -124,7 +132,10 @@ class TransientModel (WaterNetworkModel):
                 pipe.wavev = wavespeed[i]
                 i+=1
 
-    def set_roughness(self,roughness, pipes=None):
+    def set_roughness(
+            self,
+            roughness: float | int | list,
+            pipes: str | list[str] | None = None) -> None:
         """Set roughness coefficient for pipes in the network
 
         Parameters
@@ -160,7 +171,7 @@ class TransientModel (WaterNetworkModel):
             raise ValueError('Roughness should be a float or a list')
 
         # assign roughness to each input pipes
-        i= 0
+        i: int = 0
         if generator == 1:
             for _, pipe in pipes:
                 pipe.roughness = roughness[i]
@@ -170,7 +181,7 @@ class TransientModel (WaterNetworkModel):
                 pipe.roughness = roughness[i]
                 i+=1
 
-    def set_time(self, tf, dt=None):
+    def set_time(self, tf: float, dt: float | None = None) -> None:
         """Set time step and duration for the simulation.
 
         Parameters
@@ -180,13 +191,13 @@ class TransientModel (WaterNetworkModel):
         dt : float, optional
             time step, by default maximum allowed dt
         """
-        if dt == None:
+        if dt is None:
             dt = max_time_step(self)
         self.simulation_period = tf
         self = discretization(self, dt)
-        print('Simulation time step %.5f s' % float(self.time_step))
+        logger.info('Simulation time step %.5f s' % float(self.time_step))
 
-    def set_time_N(self, tf, N=2):
+    def set_time_N(self, tf: float, N: int = 2) -> None:
         """Set time step and duration for the simulation.
 
         Parameters
@@ -199,9 +210,9 @@ class TransientModel (WaterNetworkModel):
         dt = max_time_step_N(self,N)
         self.simulation_period = tf
         self = discretization_N(self, dt)
-        print('Simulation time step %.5f s' % self.time_step)
+        logger.info('Simulation time step %.5f s' % self.time_step)
 
-    def add_leak(self, name, coeff):
+    def add_leak(self, name: str, coeff: float | list[float]) -> None:
         """Add leak to the transient model
 
         Parameters
@@ -216,7 +227,13 @@ class TransientModel (WaterNetworkModel):
         leak_node.emitter_coeff += coeff
         leak_node._leak_status = True
 
-    def add_burst(self, name, ts, tc, final_burst_coeff):
+    def add_burst(
+            self,
+            name: str,
+            ts: float,
+            tc: float,
+            final_burst_coeff: float | list[float]
+        ) -> None:
         """Add leak to the transient model
 
         Parameters
@@ -232,11 +249,16 @@ class TransientModel (WaterNetworkModel):
         """
 
         burst_node = self.get_node(name)
-        burst_node.burst_coeff = burstsetting(self.time_step, self.simulation_period,
-                                                ts, tc, final_burst_coeff)
+        burst_node.burst_coeff = burstsetting(
+            self.time_step,
+            self.simulation_period,
+            ts,
+            tc,
+            final_burst_coeff
+        )
         burst_node.burst_status = True
 
-    def add_blockage(self, name, percentage):
+    def add_blockage(self, name: str, percentage: float | list[float]) -> None:
         """Add blockage to the transient model
 
         Parameters
@@ -250,7 +272,11 @@ class TransientModel (WaterNetworkModel):
         blockage_node.block_per = percentage
         blockage_node.block_status = True
 
-    def valve_closure(self, name, rule, curve=None):
+    def valve_closure(
+            self,
+            name: str,
+            rule: list[float],
+            curve: list[float] | None = None) -> None:
         """Set valve closure rule
 
         Parameters
@@ -264,7 +290,7 @@ class TransientModel (WaterNetworkModel):
             ts : closure start time [s]
             se : final open percentage [s]
             m  : closure constant [unitless]
-        curve: list
+        curve: list, optional
             [(open_percentage[i], 1/kl[i]) for i ]
             List of open percentage and the corresponding
             inverse of valve coefficient
@@ -282,7 +308,7 @@ The initial setting has been changed to open to perform the closure." %name)
         valve.operating = True
         valve.operation_rule = valveclosing(self.time_step, self.simulation_period, rule)
 
-        if curve == None:
+        if curve is None:
             valve.valve_coeff = None
         else:
             p = [i for (i,j) in curve]
@@ -290,7 +316,11 @@ The initial setting has been changed to open to perform the closure." %name)
             valve.valve_coeff = [p,kl]
 
 
-    def valve_opening(self, name, rule, curve=None):
+    def valve_opening(
+            self,
+            name: str,
+            rule: list[float],
+            curve: list[float] | None = None) -> None:
         """Set valve opening rule
 
         Parameters
@@ -304,7 +334,7 @@ The initial setting has been changed to open to perform the closure." %name)
             ts : opening start time [s]
             se : final open percentage [s]
             m  : closure constant [unitless]
-        curve: list
+        curve: list, optional
             [(open_percentage[i], kl[i]) for i ]
             List of open percentage and the corresponding
             valve coefficient
@@ -313,7 +343,7 @@ The initial setting has been changed to open to perform the closure." %name)
         if valve.link_type.lower() != 'valve':
             raise RuntimeError('The name of valve to operate is not associated with a vale')
 
-        if valve.initial_status.name == 'Open' or valve.initial_status.name == 'Active':
+        if valve.initial_status.name in ('Open', 'Active'):
             warnings.warn("Valve %s is already open in its initial setting. \
 The initial setting has been changed to closed to perform the opening." %name)
             valve.status = LinkStatus.Closed
@@ -321,14 +351,14 @@ The initial setting has been changed to closed to perform the opening." %name)
         valve.operating = True
         valve.operation_rule = valveopening(self.time_step, self.simulation_period, rule)
 
-        if curve == None:
+        if curve is None:
             valve.valve_coeff = None
         else:
             p = [i for (i,j) in curve]
             kl = [j for (i,j) in curve]
             valve.valve_coeff = [p,kl]
 
-    def pump_shut_off(self, name, rule):
+    def pump_shut_off(self, name: str, rule: list[float]) -> None:
         """Set pump shut off rule
 
         Parameters
@@ -355,7 +385,7 @@ The initial setting has been changed to open to perform the closure." %name)
         pump.operating = True
         pump.operation_rule = pumpclosing(self.time_step, self.simulation_period, rule)
 
-    def pump_start_up(self, name, rule):
+    def pump_start_up(self, name: str, rule: list[float]) -> None:
         """Set pump start up rule
 
         Parameters
@@ -382,15 +412,16 @@ The initial setting has been changed to open to perform the closure." %name)
         pump.nominal_flow = results.link['flowrate'].loc[0,name]
         node1 = self.links[name].start_node.name
         node2 = self.links[name].end_node.name
-        pump.nominal_pump_head = abs(results.node['head'].loc[0,node1]-
-                        results.node['head'].loc[0,node2])
+        pump.nominal_pump_head = abs(
+            results.node['head'].loc[0,node1]-
+            results.node['head'].loc[0,node2])
 
         # Turn the pump back to closed
         pump.status = LinkStatus.Closed
         pump.operating = True
         pump.operation_rule = pumpopening(self.time_step, self.simulation_period, rule)
 
-    def add_demand_pulse(self, name, rule):
+    def add_demand_pulse(self, name: str | list[str], rule: list[float]) -> None:
         """ Add demand pulse to junction
 
         Parameters
@@ -407,12 +438,22 @@ The initial setting has been changed to open to perform the closure." %name)
         """
         [tc, ts, tp, dp] = rule
         demand_node = self.get_node(name)
-        demand_node.pulse_coeff = demandpulse(self.time_step, self.simulation_period,
-                                                tc, ts, tp, dp)
+        demand_node.pulse_coeff = demandpulse(
+            self.time_step,
+            self.simulation_period,
+            tc,
+            ts,
+            tp,
+            dp
+        )
         demand_node.pulse_status = True
 
 
-    def add_surge_tank(self, name, shape, tank_type='open'):
+    def add_surge_tank(
+            self,
+            name,
+            shape: tuple[float, float, float] | tuple[float],
+            tank_type: str = 'open') -> None:
         """ Add surge tank
 
         Parameters
@@ -429,6 +470,7 @@ The initial setting has been changed to open to perform the closure." %name)
             type of the surge tank, "closed" or "open",
             by default 'open'
         """
+        shape = list(shape)
         surge_node = self.get_node(name)
         surge_node.tank_flow = 0
         shape.append(0.)
@@ -438,14 +480,18 @@ The initial setting has been changed to open to perform the closure." %name)
             surge_node.transient_node_type = 'Chamber'
             surge_node.tank_height = shape[1]
             surge_node.water_level = shape[-2]
-        else :
-            print ("tank type can be 'closed' or 'open'.")
+        else:
+            logger.warning("tank type can be 'closed' or 'open', not %s", tank_type)
         surge_node.tank_shape = shape # append tank flow
 
 
-
-
-    def detect_pressure_change(self, name, threshold, drift, show=False, ax=None):
+    def detect_pressure_change(
+            self,
+            name: str,
+            threshold: float,
+            drift: float,
+            show: bool = False,
+            ax: Axes = None):
         """Detect pressure change in simulation results
 
         Parameters
@@ -466,11 +512,10 @@ The initial setting has been changed to open to perform the closure." %name)
                  show, ax=None)
         ta = [time[i] for i in ta]
         tf = [time[i] for i in tf]
-        print ('%s changes detected in pressure results on node %s' %(len(ta), name))
-
+        logger.info('%s changes detected in pressure results on node %s' %(len(ta), name))
         return ta, tf, list(amp)
 
-    def plot_node_head(self, name, ax=None):
+    def plot_node_head(self, name: str | list[str], ax: Axes | None = None) -> None:
         """Detect pressure change in simulation results
 
         Parameters
