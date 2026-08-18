@@ -19,6 +19,9 @@ def MOCSimulator(
         from tsnet.kernels.numba import MOCSimulator, precompile
         precompile()
         return MOCSimulator(tm = tm, results_obj = results_obj, friction = friction)
+    if kernel == ComputeBackend.ORIGINAL:
+        from tsnet.kernels.python_original import MOCSimulator
+        return MOCSimulator(tm = tm, results_obj = results_obj, friction = friction)
     raise ValueError(
         f"Unsupported backend {kernel.value!r}."
     )
@@ -53,6 +56,9 @@ def initialize(
         return initialize(tm = tm, t0 = t0, engine = engine)
     if kernel == ComputeBackend.NUMBA:
         from tsnet.kernels.numba import initialize
+        return initialize(tm = tm, t0 = t0, engine = engine)
+    if kernel == ComputeBackend.ORIGINAL:
+        from tsnet.kernels.python_original import initialize
         return initialize(tm = tm, t0 = t0, engine = engine)
     raise ValueError(
         f"Unsupported backend {kernel.value!r}."

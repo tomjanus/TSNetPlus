@@ -6,3 +6,4 @@ class ComputeBackend(StrEnum):
     PYTHON = "python"
     NUMBA = "numba"
     CYTHON = "cython"
+    ORIGINAL = "original"

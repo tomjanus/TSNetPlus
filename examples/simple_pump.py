@@ -5,7 +5,7 @@ import sys
 
 tsnet.configure_logging()
 
-selected_kernel = ComputeBackend.NUMBA
+selected_kernel = ComputeBackend.ORIGINAL
 
 inp_file = 'networks/simple_pump.inp'
 tm = tsnet.network.TransientModel(inp_file)
