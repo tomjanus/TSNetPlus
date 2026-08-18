@@ -1,8 +1,11 @@
 import tsnet
+from tsnet.backends import ComputeBackend
 import sys
 # Open an example network and create a transient model
 
 tsnet.configure_logging()
+
+selected_kernel = ComputeBackend.NUMBA
 
 inp_file = 'networks/simple_pump.inp'
 tm = tsnet.network.TransientModel(inp_file)
@@ -10,7 +13,7 @@ tm = tsnet.network.TransientModel(inp_file)
 # Set wavespeed
 tm.set_wavespeed(1200.) # m/s
 # Set time options
-dt = 0.1  # time step [s], if not given, use the maximum allowed dt
+dt = 0.01  # time step [s], if not given, use the maximum allowed dt
 tf = 60   # simulation period [s]
 tm.set_time(tf)
 
@@ -18,18 +21,18 @@ tm.set_time(tf)
 tc = 0.1 # pump closure period
 ts = 3 # pump closure start time
 se = 0.0 # end open percentage
-m = 10 # closure constant
+m = 1 # closure constant
 pump_op = [tc,ts,se,m]
 tm.pump_shut_off('pump', pump_op)
 
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
-tm = tsnet.simulation.initialize(tm, t0, engine)
+tm = tsnet.simulation.initialize(tm, t0, engine, kernel=selected_kernel)
 
 # Transient simulation
 results_obj = 'simple_pump' # name of the object for saving simulation results
-tm = tsnet.simulation.MOCSimulator(tm, results_obj)
+tm = tsnet.simulation.MOCSimulator(tm, results_obj, kernel=selected_kernel)
 
 # report results
 import matplotlib.pyplot as plt
