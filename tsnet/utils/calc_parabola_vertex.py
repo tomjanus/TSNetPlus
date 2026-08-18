@@ -4,7 +4,7 @@ calculate the parameters of a parabola based on the
 coordinated of three points on the curve.
 
 """
-def calc_parabola_vertex(points):
+def calc_parabola_vertex(points: list[tuple[float,float]]) -> tuple[float, float, float]:
     """Adapted and modifed to get the unknowns for defining a parabola
 
     Parameters
