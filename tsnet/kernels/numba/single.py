@@ -7,7 +7,7 @@ transient simulation on a single pipe, including
 
 """
 import numpy as np
-from tsnet.simulation.solver import (
+from .solver import (
     inner_node_steady,
     inner_node_quasisteady,
     inner_node_unsteady,
@@ -21,7 +21,7 @@ from tsnet.simulation.solver import (
     surge_tank,
     air_chamber
 )
-from .constants import ST_GRAVITY
+from ..constants import ST_GRAVITY
 
 
 def inner_pipe (linkp, pn, dt, links1, links2, utype, dtype, p,

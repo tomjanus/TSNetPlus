@@ -117,3 +117,9 @@ temp.*
 
 # Examples outputs
 examples/*.pdf
+
+# Benchmarks
+benchmarks/*.prof
+benchmarks/*.svg
+benchmarks/*.bin
+benchmarks/*.html

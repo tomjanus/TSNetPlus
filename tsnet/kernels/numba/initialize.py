@@ -15,9 +15,9 @@ import wntr
 import numpy as np
 import pandas as pd
 
-from ..utils import calc_parabola_vertex
-from ..network.model import TransientModel
-from .custom_exceptions import (
+from ...utils import calc_parabola_vertex
+from ...network.model import TransientModel
+from ..custom_exceptions import (
     InitialConditionError,
     InitialConditionTimeError,
     InvalidEngineError,
@@ -25,8 +25,8 @@ from .custom_exceptions import (
     ResultNotFoundError,
     ResultNonFiniteError
 )
-from .custom_warnings import ExcessiveFrictionWarning, InitializationWarning
-from .constants import (
+from ..custom_warnings import ExcessiveFrictionWarning, InitializationWarning
+from ..constants import (
     ST_GRAVITY,
     KINEMATIC_VISCOSITY,
     DW_HEAD_TOLERANCE,

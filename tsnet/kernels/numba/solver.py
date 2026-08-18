@@ -14,8 +14,9 @@ for different grid configurations, including:
 from __future__ import print_function
 import numpy as np
 import warnings
-from .constants import KINEMATIC_VISCOSITY, ST_GRAVITY
-from .custom_exceptions import InvalidFrictionModelError
+from numba import njit
+from ..constants import KINEMATIC_VISCOSITY, ST_GRAVITY
+from ..custom_exceptions import InvalidFrictionModelError
 
 
 def calculate_Re_number(V: float, D: float, nu: float = KINEMATIC_VISCOSITY) -> float:
@@ -242,10 +243,31 @@ def cal_Cs( link1, link2, H1, V1, H2, V2, s1, s2, dt,
 
     return A1, A2, C1, C2
 
+# ---------------------------------------------------------------------------
+# Steady friction
+# ---------------------------------------------------------------------------
 
+@njit(cache=True, fastmath=True)
+def _inner_steady(f, D, a, theta, dt, H0, V0):
+    n = H0.shape[0]
+    HP = np.empty(n - 2)
+    VP = np.empty(n - 2)
+    ga = ST_GRAVITY / a
+    c = f * dt / (2.0 * D)
+    gadt_theta = ga * dt * theta
+    for i in range(1, n - 1):
+        V1 = V0[i - 1]; H1 = H0[i - 1]
+        V2 = V0[i + 1]; H2 = H0[i + 1]
+        J1 = c * V1 * abs(V1)
+        J2 = c * V2 * abs(V2)
+        C00 = V1 + ga * H1 - J1 + gadt_theta * V1
+        C10 = -V2 + ga * H2 + J2 + gadt_theta * V2
+        HP[i - 1] = (C00 + C10) / (2.0 * ga)
+        VP[i - 1] = -C10 + ga * HP[i - 1]
+    return HP, VP
 
-def inner_node_unsteady(link, H0, V0, dt, dVdx, dVdt):
-    """Inner boundary MOC using C+ and C- characteristic curve with unsteady friction
+def inner_node_steady(link, H0, V0, dt):
+    """Inner boundary MOC using C+ and C- characteristic curve with steady friction
 
     Parameters
     ----------
@@ -257,10 +279,7 @@ def inner_node_unsteady(link, H0, V0, dt, dVdx, dVdt):
         velocity at previous time step
     dt : float
         Time step
-    dVdx : list
-        List of convective instantaneous acceleration
-    dVdt : list
-        List of local instantaneous acceleration
+
     Returns
     -------
     HP : float
@@ -268,49 +287,51 @@ def inner_node_unsteady(link, H0, V0, dt, dVdx, dVdt):
     VP : float
         Velocity at current pipe inner nodes at current time
     """
-    HP = np.zeros(len(H0))
-    VP = np.zeros(len(V0))
-    # property of current pipe
-    f = link.roughness     # unitless
-    D = link.diameter      # m
-    a = link.wavev        # m/s
-    # A = np.pi * D**2. / 4.  # m^2
-    theta = link.theta
-    KD = link.roughness_height
-    ga = ST_GRAVITY/a
+    H0 = np.ascontiguousarray(H0, dtype=np.float64)
+    V0 = np.ascontiguousarray(V0, dtype=np.float64)
+    return _inner_steady(
+        link.roughness, link.diameter, link.wavev, link.theta,
+        dt, H0, V0)
+
+# ---------------------------------------------------------------------------
+# Quasi-steady friction
+# ---------------------------------------------------------------------------
+
+@njit(cache=True, fastmath=True)
+def _inner_quasisteady(D, a, theta, KD, dt, H0, V0):
+    n = H0.shape[0]
+    HP = np.empty(n - 2)
+    VP = np.empty(n - 2)
+    ga = ST_GRAVITY / a
+    gadt_theta = ga * dt * theta
     tol = 1e-1
-    for i in range(1,len(H0)-1):
-        V1 = V0[i-1]; H1 = H0[i-1]
-        V2 = V0[i+1]; H2 = H0[i+1]
-        dVdx1 = dVdx[i-1] ; dVdx2 = dVdx[i]
-        dVdt1 = dVdt[i-1] ; dVdt2 = dVdt[i+1]
-        C = np.zeros((2,1), dtype=np.float64)
+    cD = dt / (2.0 * D)
+    D_nu = D * 1 / KINEMATIC_VISCOSITY  # Re = |V| * D / nu
+    for i in range(1, n - 1):
+        V1 = V0[i - 1]; H1 = H0[i - 1]
+        V2 = V0[i + 1]; H2 = H0[i + 1]
 
-        Re = calculate_Re_number(V1, D)
-        if Re <tol:
-            Js =  0
+        Re1 = abs(V1) * D_nu
+        if Re1 < tol:
+            J1 = 0.0
         else:
-            f = quasi_steady_friction_factor(Re, KD)
-            Js = f*dt/2./D*V1*abs(V1)
-        Ju = unsteady_friction(Re, dVdt1, dVdx1, V1, a)
-        J1 = Js +Ju
-        
-        C[0,0] = V1 + ga*H1 - J1 + ga* dt *V1*theta
+            r = -1.8 * np.log10(6.9 / Re1 + KD)
+            f = 1.0 / (r * r)
+            J1 = f * cD * V1 * abs(V1)
 
-        Re = calculate_Re_number(V2, D)
-        if Re < tol:
-            Js =  0
+        Re2 = abs(V2) * D_nu
+        if Re2 < tol:
+            J2 = 0.0
         else:
-            f = quasi_steady_friction_factor(Re, KD)
-            Js = f*dt/2./D*V2*abs(V2)
-        Ju = unsteady_friction(Re, dVdt2, dVdx2, V2, a)
-        J2 = Js +Ju
-        C[1,0] = -V2+ ga*H2 + J2 + ga* dt *V2*theta
+            r = -1.8 * np.log10(6.9 / Re2 + KD)
+            f = 1.0 / (r * r)
+            J2 = f * cD * V2 * abs(V2)
 
-        HP[i] = (C[0,0] + C[1,0]) / 2./ga
-        VP[i] = np.float64(-C[1,0]+ ga*HP[i])
-
-    return HP[1:-1], VP[1:-1]
+        C00 = V1 + ga * H1 - J1 + gadt_theta * V1
+        C10 = -V2 + ga * H2 + J2 + gadt_theta * V2
+        HP[i - 1] = (C00 + C10) / (2.0 * ga)
+        VP[i - 1] = -C10 + ga * HP[i - 1]
+    return HP, VP
 
 def inner_node_quasisteady(link, H0, V0, dt):
     """Inner boundary MOC using C+ and C- characteristic curve with unsteady friction
@@ -336,44 +357,76 @@ def inner_node_quasisteady(link, H0, V0, dt):
     VP : float
         Velocity at current pipe inner nodes at current time
     """
-    HP = np.zeros(len(H0))
-    VP = np.zeros(len(V0))
-    # property of current pipe
-    D = link.diameter      # m
-    a = link.wavev        # m/s
-    theta = link.theta
-    KD = link.roughness_height
-    ga = ST_GRAVITY/a
+    H0 = np.ascontiguousarray(H0, dtype=np.float64)
+    V0 = np.ascontiguousarray(V0, dtype=np.float64)
+    return _inner_quasisteady(
+        link.diameter, link.wavev, link.theta, link.roughness_height,
+        dt, H0, V0,
+    )
+
+# ---------------------------------------------------------------------------
+# Unsteady friction
+# ---------------------------------------------------------------------------
+
+@njit(cache=True, fastmath=True)
+def _inner_unsteady(D, a, theta, KD, dt, H0, V0, dVdx, dVdt):
+    n = H0.shape[0]
+    HP = np.empty(n - 2)
+    VP = np.empty(n - 2)
+    ga = ST_GRAVITY / a
+    gadt_theta = ga * dt * theta
     tol = 1e-1
+    cD = dt / (2.0 * D)
+    D_nu = D * 1 / KINEMATIC_VISCOSITY
+    half_g_inv = 1.0 / (2.0 * ST_GRAVITY)
 
-    for i in range(1,len(H0)-1):
-        V1 = V0[i-1]; H1 = H0[i-1]
-        V2 = V0[i+1]; H2 = H0[i+1]
-        C = np.zeros((2,1), dtype=np.float64)
+    for i in range(1, n - 1):
+        V1 = V0[i - 1]; H1 = H0[i - 1]
+        V2 = V0[i + 1]; H2 = H0[i + 1]
+        dVdx1 = dVdx[i - 1]; dVdx2 = dVdx[i]
+        dVdt1 = dVdt[i - 1]; dVdt2 = dVdt[i + 1]
 
-        Re = calculate_Re_number(V1, D)
-        if Re < tol:
-            J1 = 0
+        # -- C+ side ----
+        Re1 = abs(V1) * D_nu
+        if Re1 < tol:
+            Js1 = 0.0
         else:
-            f = quasi_steady_friction_factor(Re, KD)
-            J1 = f*dt/2./D*V1*abs(V1)
-
-        Re = calculate_Re_number(V2, D)
-        if Re < tol:
-            J2 = 0
+            r = -1.8 * np.log10(6.9 / Re1 + KD)
+            f = 1.0 / (r * r)
+            Js1 = f * cD * V1 * abs(V1)
+        if Re1 < 2000.0:
+            C1v = 4.76e-3
         else:
-            f = quasi_steady_friction_factor(Re, KD)
-            J2 = f*dt/2./D*V2*abs(V2)
+            C1v = 7.41 / Re1 ** (np.log10(14.3 / Re1 ** 0.05))
+        k1 = np.sqrt(C1v) * 0.5
+        sV1 = 1.0 if V1 > 0 else (-1.0 if V1 < 0 else 0.0)
+        Ju1 = k1 * half_g_inv * (dVdt1 + a * sV1 * abs(dVdx1))
+        J1 = Js1 + Ju1
 
-        C[0,0] = V1 + ga*H1 - J1 + ga* dt *V1*theta
-        C[1,0] = -V2+ ga*H2 + J2 + ga* dt *V2*theta
+        # -- C- side ----
+        Re2 = abs(V2) * D_nu
+        if Re2 < tol:
+            Js2 = 0.0
+        else:
+            r = -1.8 * np.log10(6.9 / Re2 + KD)
+            f = 1.0 / (r * r)
+            Js2 = f * cD * V2 * abs(V2)
+        if Re2 < 2000.0:
+            C2v = 4.76e-3
+        else:
+            C2v = 7.41 / Re2 ** (np.log10(14.3 / Re2 ** 0.05))
+        k2 = np.sqrt(C2v) * 0.5
+        sV2 = 1.0 if V2 > 0 else (-1.0 if V2 < 0 else 0.0)
+        Ju2 = k2 * half_g_inv * (dVdt2 + a * sV2 * abs(dVdx2))
+        J2 = Js2 + Ju2
 
-        HP[i] = (C[0,0] + C[1,0]) / 2./ ga
-        VP[i] = np.float64(-C[1,0]+ ga*HP[i])
+        C00 = V1 + ga * H1 - J1 + gadt_theta * V1
+        C10 = -V2 + ga * H2 + J2 + gadt_theta * V2
+        HP[i - 1] = (C00 + C10) / (2.0 * ga)
+        VP[i - 1] = -C10 + ga * HP[i - 1]
+    return HP, VP
 
-    return HP[1:-1], VP[1:-1]
-
-def inner_node_steady(link, H0, V0, dt):
+def inner_node_unsteady(link, H0, V0, dt, dVdx, dVdt):
     """Inner boundary MOC using C+ and C- characteristic curve with unsteady friction
 
     Parameters
@@ -386,7 +439,10 @@ def inner_node_steady(link, H0, V0, dt):
         velocity at previous time step
     dt : float
         Time step
-
+    dVdx : list
+        List of convective instantaneous acceleration
+    dVdt : list
+        List of local instantaneous acceleration
     Returns
     -------
     HP : float
@@ -394,33 +450,14 @@ def inner_node_steady(link, H0, V0, dt):
     VP : float
         Velocity at current pipe inner nodes at current time
     """
-    HP = np.zeros(len(H0))
-    VP = np.zeros(len(V0))
-    # property of current pipe
-    f = link.roughness     # unitless
-    D = link.diameter      # m
-    a = link.wavev        # m/s
-    # A = np.pi * D**2. / 4.  # m^2
-    theta = link.theta
-    ga = ST_GRAVITY/a
-    for i in range(1,len(H0)-1):
-        V1 = V0[i-1]; H1 = H0[i-1]
-        V2 = V0[i+1]; H2 = H0[i+1]
-        C = np.zeros((2,2), dtype=np.float64)
-
-        J1 = f*dt/2./D*V1*abs(V1)
-        
-        C[0,0] = V1 + ga*H1 - J1 + ga* dt *V1*theta
-        C[0,1] = ga
-
-        J2 = f*dt/2./D*V2*abs(V2)
-        C[1,0] = -V2+ ga*H2 + J2 + ga* dt *V2*theta
-        C[1,1] = ga
-
-        HP[i] = (C[0,0] + C[1,0]) / (C[0,1] + C[1,1])
-        VP[i] = np.float64(-C[1,0]+ C[1,1]*HP[i])
-
-    return HP[1:-1], VP[1:-1]
+    H0 = np.ascontiguousarray(H0, dtype=np.float64)
+    V0 = np.ascontiguousarray(V0, dtype=np.float64)
+    dVdx = np.ascontiguousarray(dVdx, dtype=np.float64)
+    dVdt = np.ascontiguousarray(dVdt, dtype=np.float64)
+    return _inner_unsteady(
+        link.diameter, link.wavev, link.theta, link.roughness_height,
+        dt, H0, V0, dVdx, dVdt,
+    )
 
 def valve_node(KL_inv, link1, link2, H1, V1, H2, V2, dt, nn, s1, s2,
                 friction, dVdx1, dVdx2, dVdt1, dVdt2):
