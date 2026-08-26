@@ -1,9 +1,9 @@
 """ """
 import logging
 import numpy as np
-import tsnet
+import tsnetplus
 
-logger = logging.getLogger("tsnet")
+logger = logging.getLogger("tsnetplus")
 
 _MISSING = object()
 
@@ -65,8 +65,8 @@ def _compare_result(
     return True
 
 def compare_results(
-    python_model: tsnet.network.TransientModel,
-    numba_model: tsnet.network.TransientModel,
+    python_model: tsnetplus.network.TransientModel,
+    numba_model: tsnetplus.network.TransientModel,
     *,
     rtol: float = 1e-8,
     atol: float = 1e-12,

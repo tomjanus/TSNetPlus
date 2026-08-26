@@ -1,5 +1,5 @@
 """
-The tsnet.kernels.numba.simulator module contains function to perform
+The tsnetplus.kernels.numba.simulator module contains function to perform
 the workflow of reading, discretizing, initialization, and transient
 simulation for the given .inp file.
 
@@ -127,7 +127,7 @@ def MOCSimulator(tm, results_obj='results', friction='steady'):
 
     Parameters
     ----------
-    tm : tsnet.network.model.TransientModel
+    tm : tsnetplus.network.model.TransientModel
         Network
     results_obj: string, optional
         the name of the results file, by default 'results'
@@ -140,7 +140,7 @@ def MOCSimulator(tm, results_obj='results', friction='steady'):
 
     Returns
     ------
-    tm : tsnet.network.model.TransientModel
+    tm : tsnetplus.network.model.TransientModel
             Simulated network
     """
     
@@ -490,7 +490,7 @@ def MOCSimulatorOld(
 
     Parameters
     ----------
-    tm : tsnet.network.model.TransientModel
+    tm : tsnetplus.network.model.TransientModel
         Network
     results_obj: string, optional
         the name of the results file, by default 'results'
@@ -503,7 +503,7 @@ def MOCSimulatorOld(
 
     Returns
     ------
-    tm : tsnet.network.model.TransientModel
+    tm : tsnetplus.network.model.TransientModel
             Simulated network
     """
     # determine network topology

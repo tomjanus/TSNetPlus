@@ -1,5 +1,5 @@
 """
-The tsnet.simulation.single contains methods to perform MOC
+The tsnetplus.simulation.single contains methods to perform MOC
 transient simulation on a single pipe, including
 1. inner pipe
 2. left boundary pipe (without C- charateristic grid)

@@ -1,5 +1,5 @@
 """
-The tsnet.postprocessing.detect_cusum module contains function to perform
+The tsnetplus.postprocessing.detect_cusum module contains function to perform
 Cumulative sum algorithm (CUSUM) to detect abrupt changes in data.
 
 """

@@ -1,5 +1,5 @@
 """
-The tsnet.network.geometry read in the geometry defined by EPANet
+The tsnetplus.network.geometry read in the geometry defined by EPANet
 .inp file, and assign additional parameters needed in transient
 simulation later in tsnet.
 
@@ -17,10 +17,10 @@ import networkx as nx
 import numpy as np
 from wntr.network import WaterNetworkModel
 from rich import print as rprint
-from tsnet.network.discretize import (
+from tsnetplus.network.discretize import (
     discretization, max_time_step,
     discretization_N, max_time_step_N)
-from tsnet.network.control import (
+from tsnetplus.network.control import (
     valveclosing,
     valveopening,
     pumpclosing,
@@ -28,7 +28,7 @@ from tsnet.network.control import (
     burstsetting,
     demandpulse
 )
-from tsnet.postprocessing import detect_cusum
+from tsnetplus.postprocessing import detect_cusum
 
 Axes: TypeAlias = matplotlib.axes.Axes
 

@@ -1016,7 +1016,7 @@ def add_leakage(emitter_coef, block_per, link1, link2, elev,
         VP = np.float64(-C2[:,0]+ C2[:,1]*HP)
     else:        # pipe end
         VP = np.float64(C1[:,0] - C1[:,1]*HP)
-    return HP, VP
+    return np.asarray(HP).item(), np.asarray(VP).item()
 
 
 def surge_tank(tank, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
@@ -1104,7 +1104,7 @@ def surge_tank(tank, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
         VP = np.float64(VP2)
     else:        # pipe end
         VP = np.float64(VP1)
-    return HP, VP, QPs
+    return np.asarray(HP).item(), np.asarray(VP).item(), np.asarray(QPs).item()
 
 def air_chamber(tank, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
                 friction, dVdx1, dVdx2, dVdt1, dVdt2):
@@ -1213,4 +1213,4 @@ def air_chamber(tank, link1, link2, H1, V1, H2, V2, dt, g, nn, s1, s2,
         VP = np.float64(VP2)
     else:        # pipe end
         VP = np.float64(VP1)
-    return HP, VP, QPs, zp
+    return np.asarray(HP).item(), np.asarray(VP).item(), np.asarray(QPs).item(), zp

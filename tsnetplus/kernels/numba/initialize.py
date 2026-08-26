@@ -163,7 +163,7 @@ def _allocate_result_arrays(tm: TransientModel, number_of_steps: int) -> None:
         
     Parameters
     ----------
-    tm : tsnet.network.model.TransientModel
+    tm : tsnetplus.network.model.TransientModel
         The TransientModel to which the result arrays will be added.
     number_of_steps : int
         The number of time steps in the simulation, used to determine the size of 
@@ -191,7 +191,7 @@ def _apply_initial_leaks(tm: TransientModel, t0: float) -> None:
     
     Parameters
     ----------
-    tm : tsnet.network.model.TransientModel
+    tm : tsnetplus.network.model.TransientModel
         The TransientModel containing the nodes to which leaks will be applied.
     t0 : float
         The initial simulation time at which the leaks will be applied.
@@ -579,7 +579,7 @@ def initialize(tm: TransientModel, t0: float, engine: Engine='DD') -> TransientM
 
     Parameters
     ----------
-    tm : tsnet.network.model.TransientModel
+    tm : tsnetplus.network.model.TransientModel
         Simulated network
     t0 : float
         time to calculate initial condition
@@ -591,7 +591,7 @@ def initialize(tm: TransientModel, t0: float, engine: Engine='DD') -> TransientM
 
     Returns
     -------
-    tm : tsnet.network.model.TransientModel
+    tm : tsnetplus.network.model.TransientModel
         Network with updated parameters
     """
 

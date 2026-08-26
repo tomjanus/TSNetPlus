@@ -1,5 +1,5 @@
 """
-The tsnet.network.topology figure out the topology, i.e.,
+The tsnetplus.network.topology figure out the topology, i.e.,
 upstream and downstream adjacent links for each pipe, and
 store the information in lists.
 

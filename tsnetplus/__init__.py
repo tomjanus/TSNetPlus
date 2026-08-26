@@ -1,10 +1,10 @@
 """Top-level package for tsnet."""
 import logging
-from tsnet import network
-from tsnet import simulation
-from tsnet import postprocessing 
-from tsnet import utils
-from tsnet.utils import configure_logging
+from tsnetplus import network
+from tsnetplus import simulation
+from tsnetplus import postprocessing 
+from tsnetplus import utils
+from tsnetplus.utils import configure_logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
