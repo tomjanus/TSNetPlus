@@ -26,8 +26,8 @@ setup_requirements = ['pytest-runner', ]
 test_requirements = ['pytest', ]
 
 setup(
-    author="Lu Xing",
-    author_email='xinglu@utexas.edu',
+    author="Lu Xing and Tomasz Janus",
+    author_email='xinglu@utexas.edu and tomasz.janus@manchester.ac.uk',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
@@ -43,13 +43,13 @@ setup(
     license="MIT license",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
-    keywords='tsnet',
-    name='tsnet',
-    packages=['tsnet'],
+    keywords='tsnetplus',
+    name='tsnetplus',
+    packages=['tsnetplus'],
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/glorialulu/TSNet',
+    url='https://github.com/tomjanus/TSNetPlus',
     version='0.3.1',
     zip_safe=False,
 )
