@@ -1,13 +1,13 @@
 from pathlib import Path
-import tsnet
+import tsnetplus
 
-tsnet.configure_logging()
+tsnetplus.configure_logging()
 
 # Get the absolute path of the current script file
 current_file_path = Path(__file__).parent.resolve()
 # Open an example network and create a transient model
 inp_file = current_file_path / 'networks/Tnet00.inp'
-tm = tsnet.network.TransientModel(inp_file)
+tm = tsnetplus.network.TransientModel(inp_file)
 
 # Set wavespeed
 tm.set_wavespeed(1200.) # m/s
@@ -27,8 +27,8 @@ tm.valve_closure('3',valve_op)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
-tm = tsnet.simulation.initialize(tm, t0, engine)
+tm = tsnetplus.simulation.initialize(tm, t0, engine)
 
 # Transient simulation
 results_obj = 'Tnet0' # name of the object for saving simulation results
-tm1 = tsnet.simulation.MOCSimulator(tm, results_obj)
+tm1 = tsnetplus.simulation.MOCSimulator(tm, results_obj)

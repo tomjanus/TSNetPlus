@@ -1,14 +1,14 @@
-import tsnet
-from tsnet.backends import ComputeBackend
+import tsnetplus
+from tsnetplus.backends import ComputeBackend
 import sys
 # Open an example network and create a transient model
 
-tsnet.configure_logging()
+tsnetplus.configure_logging()
 
 selected_kernel = ComputeBackend.ORIGINAL
 
 inp_file = 'networks/simple_pump.inp'
-tm = tsnet.network.TransientModel(inp_file)
+tm = tsnetplus.network.TransientModel(inp_file)
 
 # Set wavespeed
 tm.set_wavespeed(1200.) # m/s
@@ -28,11 +28,11 @@ tm.pump_shut_off('pump', pump_op)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
-tm = tsnet.simulation.initialize(tm, t0, engine, kernel=selected_kernel)
+tm = tsnetplus.simulation.initialize(tm, t0, engine, kernel=selected_kernel)
 
 # Transient simulation
 results_obj = 'simple_pump' # name of the object for saving simulation results
-tm = tsnet.simulation.MOCSimulator(tm, results_obj, kernel=selected_kernel)
+tm = tsnetplus.simulation.MOCSimulator(tm, results_obj, kernel=selected_kernel)
 
 # report results
 import matplotlib.pyplot as plt

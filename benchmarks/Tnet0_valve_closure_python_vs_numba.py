@@ -3,16 +3,16 @@ from typing import Literal, TypeAlias
 import logging
 from pathlib import Path
 from rich import print as rprint
-import numpy as np
 import matplotlib.pyplot as plt
-import tsnet
-from tsnet.backends import ComputeBackend
-from tsnet.utils import Timer
-from tsnet.benchmarking_utils import compare_results
+import tsnetplus
+from tsnetplus.backends import ComputeBackend
+from tsnetplus.utils import Timer
+from tsnetplus.benchmarking_utils import compare_results
 
-TransientModel: TypeAlias = tsnet.network.TransientModel
+TransientModel: TypeAlias = tsnetplus.network.TransientModel
 
-tsnet.configure_logging()
+tsnetplus.configure_logging()
+logger = logging.getLogger("tsnetplus")
 
 # Get the absolute path of the current script file
 current_file_path = Path(__file__).parent.resolve()
@@ -78,15 +78,10 @@ def plot_backend_comparison(
     plt.show()
 
 
-
-
-
-
-
 # Open an example network and create a transient model
 def instantiate_model_from_file(inp_file: Path) -> TransientModel:
     """ """
-    tm = tsnet.network.TransientModel(inp_file)
+    tm = tsnetplus.network.TransientModel(inp_file)
     return tm
 
 
@@ -99,10 +94,10 @@ def setup_and_run_transient_model(
     tm.set_wavespeed(1200.) # m/s
     # Set time options
     dt = 0.01
-    tf = 25   # simulation period [s]
+    tf = 120   # simulation time [s]
     tm.set_time(tf,dt)
     # Set valve closure
-    tc = 0 # valve closure period [s]
+    tc = 0.4 # valve closure period [s]
     ts = 0 # valve closure start time [s]
     se = 0 # end open percentage [s]
     m = 1 # closure constant [dimensionless]
@@ -111,10 +106,10 @@ def setup_and_run_transient_model(
     # Initialize steady state simulation
     t0 = 0. # initialize the simulation at 0 [s]
     engine = 'PDD' # demand driven simulator
-    tm = tsnet.simulation.initialize(tm, t0, engine, kernel)
+    tm = tsnetplus.simulation.initialize(tm, t0, engine, kernel)
     # Transient simulation
     results_obj = 'no' # name of the object for saving simulation results
-    tm = tsnet.simulation.MOCSimulator(tm, results_obj, friction_type, kernel)
+    tm = tsnetplus.simulation.MOCSimulator(tm, results_obj, friction_type, kernel)
     return tm
 
 

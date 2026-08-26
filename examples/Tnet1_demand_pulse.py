@@ -1,13 +1,13 @@
 from pathlib import Path
-import tsnet
+import tsnetplus
 
-tsnet.configure_logging()
+tsnetplus.configure_logging()
 
 # Get the absolute path of the current script file
 current_file_path = Path(__file__).parent.resolve()
 # Open an example network and create a transient model
 inp_file = current_file_path / 'networks/Tnet1.inp'
-tm = tsnet.network.TransientModel(inp_file)
+tm = tsnetplus.network.TransientModel(inp_file)
 
 # Set wavespeed
 tm.set_wavespeed(1200.) # m/s
@@ -20,7 +20,7 @@ tm.set_time(tf,dt)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
-tm = tsnet.simulation.initialize(tm, t0, engine)
+tm = tsnetplus.simulation.initialize(tm, t0, engine)
 
 # Add demand pulse
 tc = 1 # total demand period [s]
@@ -32,13 +32,13 @@ tm.add_demand_pulse('N2',demand_pulse)
 
 # Transient simulation
 results_obj = 'Tnet1' # name of the object for saving simulation results
-tm = tsnet.simulation.MOCSimulator(tm, results_obj)
+tm = tsnetplus.simulation.MOCSimulator(tm, results_obj)
 node = 'N2'
 node = tm.get_node(node)
 head1 = node.head
 
 #%%
-tm = tsnet.network.TransientModel(inp_file)
+tm = tsnetplus.network.TransientModel(inp_file)
 
 # Set wavespeed
 tm.set_wavespeed(1200.) # m/s
@@ -50,7 +50,7 @@ tm.set_time(tf,dt)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
-tm = tsnet.simulation.initialize(tm, t0, engine)
+tm = tsnetplus.simulation.initialize(tm, t0, engine)
 
 # Add demand pulse
 tc = 1 # total demand period [s]
@@ -69,7 +69,7 @@ tm.add_demand_pulse('N4',demand_pulse)
 
 # Transient simulation
 results_obj = 'Tnet1' # name of the object for saving simulation results
-tm = tsnet.simulation.MOCSimulator(tm, results_obj)
+tm = tsnetplus.simulation.MOCSimulator(tm, results_obj)
 node = 'N2'
 node = tm.get_node(node)
 head2 = node.head

@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Literal
 import cProfile
 import pstats
-import tsnet
+import tsnetplus
 
 # Get the absolute path of the current script file
 current_file_path = Path(__file__).parent.resolve()
@@ -12,7 +12,7 @@ inp_file = current_file_path / 'networks/Tnet0.inp'
 # Open an example network and create a transient model
 def instantiate_model_from_file(inp_file: Path):
     """ """
-    tm = tsnet.network.TransientModel(inp_file)
+    tm = tsnetplus.network.TransientModel(inp_file)
     return tm
     
 def setup_transient_model(tm, friction_type: Literal['steady', 'quasi-steady', 'unsteady']):
@@ -33,10 +33,10 @@ def setup_transient_model(tm, friction_type: Literal['steady', 'quasi-steady', '
     # Initialize steady state simulation
     t0 = 0. # initialize the simulation at 0 [s]
     engine = 'PDD' # demand driven simulator
-    tm = tsnet.simulation.initialize(tm, t0, engine)
+    tm = tsnetplus.simulation.initialize(tm, t0, engine)
     # Transient simulation
     results_obj = 'no' # name of the object for saving simulation results
-    tm = tsnet.simulation.MOCSimulator(tm, results_obj, friction_type)
+    tm = tsnetplus.simulation.MOCSimulator(tm, results_obj, friction_type)
 
 if __name__ == "__main__":
     friction_type = 'quasi-steady'

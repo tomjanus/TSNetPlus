@@ -1,14 +1,14 @@
 from pathlib import Path
-import tsnet
+import tsnetplus
 
-tsnet.configure_logging()
+tsnetplus.configure_logging()
 
 # Get the absolute path of the current script file
 current_file_path = Path(__file__).parent.resolve()
 # Open an example network and create a transient model
 inp_file = current_file_path / 'networks/Tnet1.inp'
 
-tm = tsnet.network.TransientModel(inp_file)
+tm = tsnetplus.network.TransientModel(inp_file)
 
 # Set wavespeed
 tm.set_wavespeed(1200.) # m/s
@@ -26,10 +26,10 @@ tm.valve_closure('VALVE',[tc,ts,se,m])
 
 # Initialize steady state simulation
 t0=0
-tm = tsnet.simulation.initialize(tm,t0)
+tm = tsnetplus.simulation.initialize(tm,t0)
 
 # Transient simulation
-tm = tsnet.simulation.MOCSimulator(tm)
+tm = tsnetplus.simulation.MOCSimulator(tm)
 
 # report results
 node = ['N2','N3']

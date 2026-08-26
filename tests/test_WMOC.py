@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tests for `tsnet` package."""
+"""Tests for `tsnetplus` package."""
 
 import pytest
-import tsnet
+import tsnetplus
 
 @pytest.fixture
 def response():

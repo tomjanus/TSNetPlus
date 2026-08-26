@@ -1,13 +1,13 @@
 from pathlib import Path
-import tsnet
+import tsnetplus
 
-tsnet.configure_logging()
+tsnetplus.configure_logging()
 
 # Get the absolute path of the current script file
 current_file_path = Path(__file__).parent.resolve()
 # Open an example network and create a transient model
 inp_file = current_file_path / 'networks/Tnet3.inp'
-tm = tsnet.network.TransientModel(inp_file)
+tm = tsnetplus.network.TransientModel(inp_file)
 
 # Set wavespeed
 import numpy as np
@@ -26,13 +26,13 @@ tm.add_burst('JUNCTION-73', ts, tc, final_burst_coeff)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0s
 engine = 'DD' # or Epanet
-tm = tsnet.simulation.initialize(tm, t0, engine)
+tm = tsnetplus.simulation.initialize(tm, t0, engine)
 
 # Transient simulation
 result_obj = 'Tnet3' # name of the object for saving simulation results
-tm1 = tsnet.simulation.MOCSimulator(tm,result_obj)
+tm1 = tsnetplus.simulation.MOCSimulator(tm,result_obj)
 #%%
-tm = tsnet.network.TransientModel(inp_file)
+tm = tsnetplus.network.TransientModel(inp_file)
 
 # Set wavespeed
 import numpy as np
@@ -50,16 +50,16 @@ tm.add_burst('JUNCTION-73', ts, tc, final_burst_coeff)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0s
 engine = 'DD' # or Epanet
-tm = tsnet.simulation.initialize(tm, t0, engine)
+tm = tsnetplus.simulation.initialize(tm, t0, engine)
 
 # Transient simulation
 result_obj = 'Tnet3' # name of the object for saving simulation results
 friction ='quasi-steady'
-tm2 = tsnet.simulation.MOCSimulator(tm,result_obj,friction)
+tm2 = tsnetplus.simulation.MOCSimulator(tm,result_obj,friction)
 
-#%% tm = tsnet.network.TransientModel(inp_file)
+#%% tm = tsnetplus.network.TransientModel(inp_file)
 # Set wavespeed
-tm = tsnet.network.TransientModel(inp_file)
+tm = tsnetplus.network.TransientModel(inp_file)
 tm.set_wavespeed(wavespeed)
 # Set time step
 tf = 20 # simulation period [s]
@@ -74,12 +74,12 @@ tm.add_burst('JUNCTION-73', ts, tc, final_burst_coeff)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0s
 engine = 'DD' # or Epanet
-tm = tsnet.simulation.initialize(tm, t0, engine)
+tm = tsnetplus.simulation.initialize(tm, t0, engine)
 
 # Transient simulation
 result_obj = 'Tnet3' # name of the object for saving simulation results
 friction ='unsteady'
-tm3 = tsnet.simulation.MOCSimulator(tm,result_obj,friction)
+tm3 = tsnetplus.simulation.MOCSimulator(tm,result_obj,friction)
 #%%
 # report results
 import matplotlib.pyplot as plt

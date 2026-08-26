@@ -1,14 +1,14 @@
 from pathlib import Path
 import numpy as np
-import tsnet
+import tsnetplus
 
-tsnet.configure_logging()
+tsnetplus.configure_logging()
 
 # Get the absolute path of the current script file
 current_file_path = Path(__file__).parent.resolve()
 # Open an example network and create a transient model
 inp_file = current_file_path / 'networks/Tnet1.inp'
-tm = tsnet.network.TransientModel(inp_file)
+tm = tsnetplus.network.TransientModel(inp_file)
 
 # Set wavespeed
 tm.set_wavespeed(1200.) # m/s
@@ -33,16 +33,16 @@ tm.valve_closure('VALVE', valve_op,curve)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
-tm = tsnet.simulation.initialize(tm, t0, engine)
+tm = tsnetplus.simulation.initialize(tm, t0, engine)
 
 # Transient simulation
 results_obj = 'Tnet1' # name of the object for saving simulation results
 friction = 'steady'
-tm1 = tsnet.simulation.MOCSimulator(tm, results_obj,friction)
+tm1 = tsnetplus.simulation.MOCSimulator(tm, results_obj,friction)
 
 
 #%%
-tm = tsnet.network.TransientModel(inp_file)
+tm = tsnetplus.network.TransientModel(inp_file)
 
 # Set wavespeed
 tm.set_wavespeed(1200.) # m/s
@@ -60,15 +60,15 @@ tm.valve_closure('VALVE',valve_op)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
-tm = tsnet.simulation.initialize(tm, t0, engine)
+tm = tsnetplus.simulation.initialize(tm, t0, engine)
 
 # Transient simulation
 results_obj = 'Tnet1' # name of the object for saving simulation results
 friction = 'quasi-steady'
-tm2 = tsnet.simulation.MOCSimulator(tm, results_obj,friction)
+tm2 = tsnetplus.simulation.MOCSimulator(tm, results_obj,friction)
 
 #%%
-tm = tsnet.network.TransientModel(inp_file)
+tm = tsnetplus.network.TransientModel(inp_file)
 
 # Set wavespeed
 tm.set_wavespeed(1200.) # m/s
@@ -87,12 +87,12 @@ tm.valve_closure('VALVE',valve_op)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
-tm = tsnet.simulation.initialize(tm, t0, engine)
+tm = tsnetplus.simulation.initialize(tm, t0, engine)
 
 # Transient simulation
 results_obj = 'Tnet1' # name of the object for saving simulation results
 friction = 'unsteady'
-tm3 = tsnet.simulation.MOCSimulator(tm, results_obj,friction)
+tm3 = tsnetplus.simulation.MOCSimulator(tm, results_obj,friction)
 
 #%%
 # report results

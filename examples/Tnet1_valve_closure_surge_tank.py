@@ -1,8 +1,7 @@
 from pathlib import Path
-import numpy as np
-import tsnet
+import tsnetplus
 
-tsnet.configure_logging()
+tsnetplus.configure_logging()
 
 # Get the absolute path of the current script file
 current_file_path = Path(__file__).parent.resolve()
@@ -15,7 +14,7 @@ se = 0 # end open percentage [s]
 m = 1 # closure constant [dimensionless]
 valve_op = [tc,ts,se,m]
 #%%
-tm = tsnet.network.TransientModel(inp_file)
+tm = tsnetplus.network.TransientModel(inp_file)
 
 # Set wavespeed
 tm.set_wavespeed(1200.) # m/s
@@ -31,7 +30,7 @@ tm.valve_closure('VALVE', valve_op)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
-tm = tsnet.simulation.initialize(tm, t0, engine)
+tm = tsnetplus.simulation.initialize(tm, t0, engine)
 tank_height = 10  # tank height [m]
 water_height = 5  # initial water level [m]
 tank_node = 'N5'
@@ -40,10 +39,10 @@ tm.add_surge_tank(tank_node, [tank_area,tank_height,water_height], 'closed')
 # Transient simulation
 results_obj = 'Tnet1' # name of the object for saving simulation results
 friction = 'steady'
-tm1 = tsnet.simulation.MOCSimulator(tm, results_obj,friction)
+tm1 = tsnetplus.simulation.MOCSimulator(tm, results_obj,friction)
 
 #%%
-tm = tsnet.network.TransientModel(inp_file)
+tm = tsnetplus.network.TransientModel(inp_file)
 # Set wavespeed
 tm.set_wavespeed(1200.) # m/s
 # Set time options
@@ -54,7 +53,7 @@ tm.valve_closure('VALVE', valve_op)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
-tm = tsnet.simulation.initialize(tm, t0, engine)
+tm = tsnetplus.simulation.initialize(tm, t0, engine)
 tank_height = 10  # tank height [m]
 water_height = 5  # initial water level [m]
 tank_node = 'N5'
@@ -63,10 +62,10 @@ tm.add_surge_tank(tank_node, [tank_area,tank_height,water_height], 'closed')
 # Transient simulation
 results_obj = 'Tnet1' # name of the object for saving simulation results
 friction = 'steady'
-tm2= tsnet.simulation.MOCSimulator(tm, results_obj,friction)
+tm2= tsnetplus.simulation.MOCSimulator(tm, results_obj,friction)
 
 #%%
-tm = tsnet.network.TransientModel(inp_file)
+tm = tsnetplus.network.TransientModel(inp_file)
 # Set wavespeed
 tm.set_wavespeed(1200.) # m/s
 # Set time options
@@ -77,11 +76,11 @@ tm.valve_closure('VALVE', valve_op)
 # Initialize steady state simulation
 t0 = 0. # initialize the simulation at 0 [s]
 engine = 'DD' # demand driven simulator
-tm = tsnet.simulation.initialize(tm, t0, engine)
+tm = tsnetplus.simulation.initialize(tm, t0, engine)
 # Transient simulation
 results_obj = 'Tnet1' # name of the object for saving simulation results
 friction = 'steady'
-tm3= tsnet.simulation.MOCSimulator(tm, results_obj,friction)
+tm3= tsnetplus.simulation.MOCSimulator(tm, results_obj,friction)
 #%%
 # report results
 import matplotlib.pyplot as plt
