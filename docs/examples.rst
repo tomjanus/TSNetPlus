@@ -11,7 +11,7 @@ network is shown below in :numref:`tnet1`, adopted from [[STWY67],WOLB05]_.
 It comprises 9 pipes, 8 junctions, one reservoir, 3 closed loops,
 and one valve located at the downstream end of the system.
 There are five steps that the user needs to take to run the
-transient simulation using the TSNet package:
+transient simulation using the TSNetPlus package:
 
 .. _tnet1:
 .. figure:: figures/Tnet1.PNG
@@ -20,7 +20,7 @@ transient simulation using the TSNet package:
 
    Tnet1 network graphics
 
-1.  Import TSNet package, read the EPANET INP file,
+1.  Import TSNetPlus package, read the EPANET INP file,
     and create transient model object.
 
 .. literalinclude:: ../examples/Tnet1_valve_closure.py
@@ -64,7 +64,7 @@ throughout the simulation can be retrieved by:
 To plot the head results at N3:
 
 .. literalinclude:: ../examples/Tnet1_valve_closure.py
-    :lines: 31-42
+    :lines: 34-36
 
 yields :numref:`tnet1_node`:
 
@@ -75,12 +75,13 @@ yields :numref:`tnet1_node`:
 
    Tnet1 - Head at node N3.
 
-Similarly, to plot the flow rate results in pipe P2:
+The flow rate results of pipe P2 are retrieved in the same way:
 
 .. literalinclude:: ../examples/Tnet1_valve_closure.py
-    :lines: 45-58
+    :lines: 38-40
 
-yields :numref:`tnet1_pipe`:
+and can be plotted against the simulation time stamps, as shown in
+:numref:`tnet1_pipe`.
 
 .. _tnet1_pipe:
 .. figure:: figures/tnet1_pipe.png
@@ -110,7 +111,7 @@ There are five steps user needs to take:
 
    Tnet2 network graphics
 
-1.  Import TSNet package, read the EPANET INP file,
+1.  Import TSNetPlus package, read the EPANET INP file,
     and create transient model object.
 
 .. literalinclude:: ../examples/Tnet2_pump_shutdown.py
@@ -185,7 +186,7 @@ yields :numref:`tnet2_pipe`:
 Example 3 - Burst and leak
 ---------------------------
 
-This example reveals how TSNet simulates pipe bursts and leaks.
+This example reveals how TSNetPlus simulates pipe bursts and leaks.
 This example network, adapted from [OSBH08]_, is shown below in :numref:`tnet3`.
 Tnet3 comprises 168 pipes, 126 junctions, 8 valve, 2 pumps,
 one reservoir, and two tanks.
@@ -200,7 +201,7 @@ There are five steps that the user would need to take:
    Tnet3 network graphics
 
 
-1.  Import TSNet package, read the EPANET INP file,
+1.  Import TSNetPlus package, read the EPANET INP file,
     and create transient model object.
 
 .. literalinclude:: ../examples/Tnet3_burst_leak.py
@@ -314,4 +315,4 @@ JUNCTION-20, where the burst occurred.
    Tnet3 - Head at multiple junctions.
 
 
-More examples are includeded in https://github.com/glorialulu/TSNet/tree/master/examples.
+More examples are includeded in https://github.com/glorialulu/TSNetPlus/tree/master/examples.

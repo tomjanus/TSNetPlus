@@ -239,7 +239,7 @@ def pump_operation_points(tm):
             def_points.append((0., 1.33*head))
             def_points.append((2*flow, 0.))
         elif len(def_points) != 3:
-            raise Exception("TSNet only support one-point or three-point pump curve.")
+            raise Exception("TSNetPlus only supports one-point or three-point pump curve.")
 
         dist = []
         for (i,j) in def_points:

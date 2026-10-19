@@ -2,6 +2,37 @@
 History
 =======
 
+0.4.0 (unreleased)
+------------------
+First release of **TSNetPlus**, a fork of `TSNet
+<https://github.com/glorialulu/TSNet>`_ (upstream release 0.3.1) whose main
+purpose is faster transient simulation.
+
+1. Renamed the package from ``tsnet`` to ``tsnetplus``. **This is a breaking
+   change**: ``import tsnet`` becomes ``import tsnetplus``.
+2. Added pluggable simulation kernels selected with
+   ``tsnetplus.backends.ComputeBackend``: the optimised pure-Python kernel,
+   the Numba just-in-time compiled kernel (optional dependency, available as
+   the ``speedups`` extra) and the unmodified upstream kernel kept as
+   ``ComputeBackend.ORIGINAL`` reference implementation.
+3. Added JIT kernel pre-compilation so that Numba compilation happens during
+   initialisation instead of during the simulation.
+4. Added the benchmarking suite ``benchmarks/benchmark_backends.py`` together
+   with the measured results in ``benchmarks/results/`` and in the
+   performance page of the documentation.
+5. Fixed ``configure_logging()``, which configured a ``tsnet`` logger instead
+   of the ``tsnetplus`` logger used by the package modules and therefore had
+   no effect on the package log messages.
+6. Dropped Python 3.6 and 3.7 support; the package now requires Python 3.10
+   or newer.
+7. Updated the documentation, which builds with Sphinx again.
+
+The results of the optimised kernels agree with the upstream reference
+implementation to within the deviations measured in the performance
+documentation; they are not bit-identical.
+
+The history below documents the upstream TSNet releases.
+
 0.1.0 (2019-08-15)
 ------------------
 

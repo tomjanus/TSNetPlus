@@ -15,7 +15,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/glorialulu/TSNet/issues.
+Report bugs at https://github.com/tomjanus/TSNetPlus/issues.
 
 If you are reporting a bug, please include:
 
@@ -38,14 +38,14 @@ and "help wanted" is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-TSNet could always use more documentation, whether as part of the
-official TSNet docs, in docstrings, or even on the web in blog posts,
+TSNetPlus could always use more documentation, whether as part of the
+official TSNetPlus docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/glorialulu/TSNet/issues.
+The best way to send feedback is to file an issue at https://github.com/tomjanus/TSNetPlus/issues.
 
 If you are proposing a feature:
 
@@ -57,18 +57,22 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `TSNet` for local development.
+Ready to contribute? Here's how to set up `TSNetPlus` for local development.
 
-1. Fork the `TSNet` repo on GitHub.
+TSNetPlus is a fork of `TSNet <https://github.com/glorialulu/TSNet>`_. Please
+read :doc:`fork` (in the documentation) to understand which parts of the code
+belong to the upstream project and which parts belong to this fork.
+
+1. Fork the `TSNetPlus` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/TSNet.git
+    $ git clone git@github.com:your_name_here/TSNetPlus.git
 
 3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
 
-    $ mkvirtualenv TSNet
-    $ cd TSNet/
-    $ python setup.py develop
+    $ mkvirtualenv TSNetPlus
+    $ cd TSNetPlus/
+    $ pip install -e ".[speedups]"   # the extra installs the Numba kernel
 
 4. Create a branch for local development::
 
@@ -79,8 +83,8 @@ Ready to contribute? Here's how to set up `TSNet` for local development.
 5. When you're done making changes, check that your changes pass flake8 and the
    tests, including testing other Python versions with tox::
 
-    $ flake8 TSNet tests
-    $ python setup.py test or py.test
+    $ flake8 tsnetplus benchmarks tests
+    $ py.test
     $ tox
 
    To get flake8 and tox, just pip install them into your virtualenv.
@@ -102,8 +106,8 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 3.5, 3.6 and 3.7, and for PyPy. Check
-   https://travis-ci.org/glorialulu/TSNet/pull_requests
+3. The pull request should work for Python 3.10, 3.11 and 3.12. Check
+   https://github.com/tomjanus/TSNetPlus/actions
    and make sure that the tests pass for all supported Python versions.
 
 Tips
@@ -111,7 +115,7 @@ Tips
 
 To run a subset of tests::
 
-$ py.test .\tests\test_tsnet.py
+$ py.test tests
 
 
 Deploying
@@ -125,4 +129,4 @@ $ bumpversion patch # possible: major / minor / patch
 $ git push
 $ git push --tags
 
-Travis will then deploy to PyPI if tests pass.
+The release is then built from the tagged commit.

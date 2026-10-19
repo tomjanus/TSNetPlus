@@ -2,9 +2,9 @@
 Getting Started
 ===============
 
-To use tsnet in a project, open a Python console and import the package::
+To use TSNetPlus in a project, open a Python console and import the package::
 
-    import tsnet
+    import tsnetplus
 
 Simple example
 ---------------
@@ -12,7 +12,7 @@ Simple example
 A simple example, Tnet1_valve_closure.py is included in the examples folder.
 This example demonstrates how to:
 
-* Import tsnet
+* Import tsnetplus
 
 * Generate a transient model
 
@@ -29,9 +29,9 @@ This example demonstrates how to:
 * Plot simulation results
 
 .. literalinclude:: ../examples/Tnet1_valve_closure.py
-    :lines: 2-42
+    :lines: 2-40
 
 
 Three additional EPANET INP files and example files are also included
-in the TSNet examples repository in the examples folder.
+in the TSNetPlus examples repository in the examples folder.
 Example networks range from a simple 8-node network to a 126-node network.

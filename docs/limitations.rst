@@ -5,7 +5,7 @@ Software Conventions and Limitations
 Units
 ------
 
-All data in TSNet is stored in the following International System (SI) units:
+All data in TSNetPlus is stored in the following International System (SI) units:
 
 * Length = :math:`m`
 * Diameter = :math:`m`
@@ -21,7 +21,7 @@ All data in TSNet is stored in the following International System (SI) units:
 
 If the unit system specified in .inp file is US units,
 it will be converted to SI unit in the simulation process.
-When setting up analysis in TSNet, all input values
+When setting up analysis in TSNetPlus, all input values
 should be specified in SI units.
 All simulation results are also stored in SI units.
 
@@ -29,7 +29,7 @@ All simulation results are also stored in SI units.
 Modelling Assumptions and Limitations
 -------------------------------------
 
-TSNet is constantly under development. Current software limitations are
+TSNetPlus is constantly under development. Current software limitations are
 as follows:
 
 *   Demands on the start and end nodes of pumps and valves are not supported.

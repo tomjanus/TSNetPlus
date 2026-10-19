@@ -10,7 +10,7 @@ from rich.logging import RichHandler
 
 @dataclass(frozen=True, slots=True)
 class LoggingConfig:
-    """Configuration for TSNet logging."""
+    """Configuration for TSNetPlus logging."""
     level: int = logging.INFO
     show_time: bool = True
     show_level: bool = True
@@ -21,9 +21,9 @@ class LoggingConfig:
 
 
 def configure_logging(config: LoggingConfig | None = None) -> None:
-    """Configure Rich-based logging for TSNet.
+    """Configure Rich-based logging for TSNetPlus.
 
-    This function configures only the ``tsnet`` logger hierarchy and
+    This function configures only the ``tsnetplus`` logger hierarchy and
     does not modify the root logger or logging configuration of other
     packages.
 
@@ -33,7 +33,7 @@ def configure_logging(config: LoggingConfig | None = None) -> None:
         Logging configuration. If ``None``, default settings are used.
     """
     config = config or LoggingConfig()
-    logger = logging.getLogger("tsnet")
+    logger = logging.getLogger("tsnetplus")
     console = Console(file=config.stream)
     handler = RichHandler(
         console=console,
@@ -45,10 +45,10 @@ def configure_logging(config: LoggingConfig | None = None) -> None:
     )
     logger.setLevel(config.level)
     logger.propagate = False
-    # Remove handlers previously installed by TSNet.
+    # Remove handlers previously installed by TSNetPlus.
     for existing_handler in logger.handlers[:]:
-        if getattr(existing_handler, "_tsnet_handler", False):
+        if getattr(existing_handler, "_tsnetplus_handler", False):
             logger.removeHandler(existing_handler)
             existing_handler.close()
-    handler._tsnet_handler = True
+    handler._tsnetplus_handler = True
     logger.addHandler(handler)

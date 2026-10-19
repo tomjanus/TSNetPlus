@@ -109,7 +109,9 @@ temp.*
 .vscode/
 
 # github
-.github/
+# The issue template and the CI workflows are part of the repository;
+# only the local caches are ignored.
+.github/*.cache
 
 
 # obj results

@@ -6,20 +6,25 @@ from rich import print as rprint
 
 
 def timer(func: Callable[..., Any]) -> Callable[..., Any]:
-    """
-    Decorator that times the execution of any function or method and prints the result.
-    
-    Args:
-        func: The function to be timed
-        
-    Returns:
-        Wrapped function that prints execution time
-        
-    Example:
-        @timer
-        def my_method(self):
-            # some code
-            pass
+    """Decorator that times the execution of a function or method.
+
+    The elapsed time is printed when the wrapped callable returns.
+
+    Parameters
+    ----------
+    func : Callable
+        The function to be timed.
+
+    Returns
+    -------
+    Callable
+        Wrapped function that prints the execution time.
+
+    Examples
+    --------
+    >>> @timer
+    ... def my_method(self):
+    ...     pass
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:

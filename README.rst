@@ -1,34 +1,36 @@
-TSNet
-=======================
+TSNetPlus
+=========
 
-
-.. image:: https://img.shields.io/pypi/v/tsnet.svg
-        :target: https://pypi.python.org/pypi/tsnet
-
-.. image:: https://img.shields.io/travis/glorialulu/tsnet.svg
-        :target: https://travis-ci.com/glorialulu/tsnet
-
-.. image:: https://readthedocs.org/projects/tsnet/badge/?version=latest
-        :target: https://tsnet.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
-
-.. image:: https://pepy.tech/badge/tsnet
-        :target: https://pepy.tech/project/tsnet
-        :alt: PyPI - Downloads
-.. image:: https://img.shields.io/github/license/glorialulu/tsnet
+.. image:: https://img.shields.io/github/license/tomjanus/TSNetPlus
+        :target: https://github.com/tomjanus/TSNetPlus/blob/master/LICENSE
         :alt: GitHub license
-.. image:: https://img.shields.io/github/release-date-pre/glorialulu/TSNet
-        :alt: GitHub (Pre-)Release Date
 
-TSNet performs transient simulation in water networks using Method of Characteristics (MOC).
+.. image:: https://img.shields.io/badge/fork%20of-TSNet-blue?logo=github
+        :target: https://github.com/glorialulu/TSNet
+        :alt: Fork of TSNet
 
+.. image:: https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue?logo=python
+        :alt: Supported Python versions
+
+**TSNetPlus** is a fork of `TSNet <https://github.com/glorialulu/TSNet>`_,
+the open-source Python package that performs transient simulation in water
+distribution networks using the Method of Characteristics (MOC).
+
+TSNetPlus keeps the transient simulation model of TSNet and focuses on making
+it **much faster to run**. The simulation kernels are pluggable, and the
+Numba just-in-time compiled kernel reduces the execution time of a transient
+simulation by between 1.1x and 13x on the benchmark networks shipped with the
+package (see `Performance`_). The results remain in agreement with the
+upstream reference implementation: the measured deviations are reported in the
+documentation.
 
 * Free software: MIT license
-* GitHub: https://github.com/glorialulu/TSNet.git
-* Documentation: https://tsnet.readthedocs.io.
+* GitHub: https://github.com/tomjanus/TSNetPlus.git
+* Upstream project: https://github.com/glorialulu/TSNet
+* Documentation: https://github.com/tomjanus/TSNetPlus/tree/master/docs
 
 Overview
----------
+--------
 
 A number of commercial software for transient simulation in water
 distribution systems are available in the market; however, the use of
@@ -42,28 +44,73 @@ rendering easiness for interaction, modification, and extension.
 Features
 --------
 
-TSNet is a Python package designed to perform transient simulation in water
+TSNetPlus is a Python package designed to perform transient simulation in water
 distribution networks. The software includes capabilities to:
 
 * Create water network models based on .inp files
 * Generate transient events by operating valves and pumps
 * Add disruptive events including pipe bursts and leakages
 * Add surge protection devices
-* Choose between steady,quasi-steady, and unsteady friction models
+* Choose between steady, quasi-steady, and unsteady friction models
 * Perform transient simulation using MOC method
+* Select the simulation kernel (pure Python or Numba)
 * Visualize results
 
-For more information, go to https://tsnet.readthedocs.io.
+Differences from TSNet
+----------------------
 
+* The package is named ``tsnetplus``; ``import tsnet`` becomes
+  ``import tsnetplus``. This is a breaking change.
+* The simulation kernels are selected with
+  ``tsnetplus.backends.ComputeBackend``:
+
+  * ``PYTHON`` - optimised pure-Python kernel (default),
+  * ``NUMBA`` - Numba just-in-time compiled kernel (requires ``numba``),
+  * ``ORIGINAL`` - the unmodified upstream kernel, kept as a reference
+    implementation.
+
+* The benchmarking suite ``benchmarks/benchmark_backends.py`` compares the
+  backends in terms of execution time and numerical agreement.
+
+Performance
+-----------
+
+On the four benchmark networks shipped with the package, the Numba kernel
+reduces the wall-clock time of a transient simulation by between **1.1x and
+13x** (median of three timed runs, 120 s simulation on Tnet0: 11.24 s with the
+upstream kernel, 0.86 s with the Numba kernel). The optimised pure-Python
+kernel gives a further marginal improvement of about 5-10% over the upstream
+kernel. The measured pressure head deviates from the upstream kernel by at
+most 0.04 m on heads of several hundred metres (about 1e-4 relatively); the
+deviations are tabulated in the documentation.
+
+The methodology, the full measured table and the exact environment are
+documented in ``docs/performance.rst``.
+
+Installation
+------------
+
+From the repository::
+
+    pip install .
+
+With the optional Numba kernel::
+
+    pip install ".[speedups]"
 
 Version
 -------
 
-TSNet is a ongoing research project in the University of Texas at Austin.
-The current version is 0.2.2, which is still a pre-release.
+The current version is 0.4.0, the first release of TSNetPlus. It is still a
+pre-release.
 
 Contact
 -------
+
+* Tomasz Janus, the University of Manchester, tomasz.janus@manchester.ac.uk
+* Hector Duque, De Montfort University
+
+The authors of the upstream TSNet package, which TSNetPlus is based on, are:
 
 * Lu Xing, the University of Texas at Austin, xinglu@utexas.edu
 * Lina Sela, the University of Texas at Austin, linasela@utexas.edu
@@ -74,16 +121,21 @@ Disclaimer
 No warranty, expressed or implied, is made as to the correctness of the
 results or the suitability of the application.
 
-
 Cite TSNet
 -----------
 
-To cite TSNet, use one of the following references:
+TSNetPlus is a fork of TSNet, so the original TSNet paper remains the
+reference publication for the transient simulation model implemented here:
 
 Xing, Lu, and Lina Sela. "Transient simulations in water distribution networks:
 TSNet python package." Advances in Engineering Software 149 (2020): 102884.
 
+TSNetPlus itself is not covered by a peer-reviewed publication. If you use it,
+please cite this repository (version 0.4.0) in addition to the reference above,
+and consider reporting any bug or improvement you find upstream.
+
 License
 -------
 
-TSNet is released under the MIT license. See the LICENSE.txt file.
+TSNetPlus is released under the MIT license. See the LICENSE file. The
+original copyright of TSNet is retained.

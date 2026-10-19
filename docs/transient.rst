@@ -1,8 +1,8 @@
 ==================================
 Transient Modeling Framework
 ==================================
-The framework of performing transient simulation using TSNet is shown in :numref:`flowchart`
-The main steps of transient modelling and simulation in TSNet
+The framework of performing transient simulation using TSNetPlus is shown in :numref:`flowchart`
+The main steps of transient modelling and simulation in TSNetPlus
 are described in subsequent sections.
 
 .. _flowchart:
@@ -10,7 +10,7 @@ are described in subsequent sections.
    :width: 400
    :alt: flowchart
 
-   Flowchart of transient simulation in TSNet
+   Flowchart of transient simulation in TSNetPlus
 
 Transient Model
 ---------------
@@ -30,7 +30,7 @@ Sections of EPANet INP file that are not compatible with WNTR are
 described in [WNTRSi]_.
 
 Compared with WNTR water network model,
-TSNet transient model adds the features
+TSNetPlus transient model adds the features
 designed specifically for transient simulation, such as
 spatial discretization,
 temporal discretization,
@@ -40,7 +40,7 @@ burst opening rules,
 surge tanks, and
 storage of time history results.
 For more information on the water network model, see
-:class:`~tsnet.network.model.TransientModel` in the API documentation.
+:class:`~tsnetplus.network.model.TransientModel` in the API documentation.
 
 A transient model can be created directly from an EPANET INP file.
 The following example build a transient model.
@@ -49,13 +49,13 @@ The following example build a transient model.
 .. code:: python
 
     inp_file = 'examples/networks/Tnet1.inp'
-    tm = tsnet.network.TransientModel(inp_file)
+    tm = tsnetplus.network.TransientModel(inp_file)
 
 
 Initial Conditions
 ------------------
 
-TSNet employed WNTR [WNTRSi]_ for simulating the steady state
+TSNetPlus employed WNTR [WNTRSi]_ for simulating the steady state
 in the network to establish the initial conditions for
 the upcoming transient simulations.
 
@@ -68,19 +68,19 @@ An initial condition simulation can be run using the following code:
 
     t0 = 0. # initialize the simulation at 0 [s]
     engine = 'DD' # demand driven simulator
-    tm = tsnet.simulation.Initializer(tm, t0, engine)
+    tm = tsnetplus.simulation.Initializer(tm, t0, engine)
 
 :math:`t_0` stands for the time when the initial condition will be
 calculated. More information on the initializer can be found in
 the API documentation, under
-:class:`~tsnet.simulation.initialize.Initializer`.
+:class:`~tsnetplus.simulation.initialize.Initializer`.
 
 
 
 Transient Simulation
 ---------------------------------
 
-After the initial conditions are obtained, TSNet adopts
+After the initial conditions are obtained, TSNetPlus adopts
 the Method of Characteristics (MOC)
 for solving governing transient flow equations.
 A transient simulation can be run using the following code:
@@ -88,7 +88,7 @@ A transient simulation can be run using the following code:
 .. code:: python
 
     results_obj = 'Tnet1' # name of the object for saving simulation results
-    tm = tsnet.simulation.MOCSimulator(tm, results_obj)
+    tm = tsnetplus.simulation.MOCSimulator(tm, results_obj)
 
 
 The results will be returned to the transient model (tm) object,
@@ -143,7 +143,7 @@ Headloss in Pipes
 
 Steady/ quasi-steady friction model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-TSNet adopts Darcy-Weisbach equation to compute head loss, regardless of the
+TSNetPlus adopts Darcy-Weisbach equation to compute head loss, regardless of the
 friction method defined in the EPANET .inp file. This package computes
 Darcy-Weisbach coefficients (:math:`f`) based on the head loss per unit length
 (:math:`{h_f}_0`) and flow velocity (:math:`V_0`) in initial condition,
@@ -167,11 +167,11 @@ based on the following equation:
 Unsteady friction model
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the steady friction model, TSNet includes the quasi-steady and
+In addition to the steady friction model, TSNetPlus includes the quasi-steady and
 the unsteady friction models.
 The head loss term (:math:`h_f`) can be expressed as a sum of steady/quasi-steady part
 (:math:`{h_f}_s`) and unsteady part (:math:`{h_f}_u`), i.e., :math:`h_f={h_f}_s+ {h_f}_u`.
-TSNet incorporates the instantaneous acceleration-based model [VIBS06]_ to calcualte the
+TSNetPlus incorporates the instantaneous acceleration-based model [VIBS06]_ to calcualte the
 unsteady friction:
 
 .. math::
@@ -193,21 +193,21 @@ Vardy's sheer decay coefficient (:math:`C^*`) [VABR95]_:
         \frac{7.41}{Re^{\log{(14.3/Re^{0.05})}}} & \mbox{turbulent flow } (Re > 2000)
     \end{array} \right.
 
-TSNet allows the user to choose the friction model using TSNet API simply by specifying
-the friction model to be used in :class:`~tsnet.simulation.MOCSimulator`.
+TSNetPlus allows the user to choose the friction model using TSNetPlus API simply by specifying
+the friction model to be used in :class:`~tsnetplus.simulation.MOCSimulator`.
 The friction argument can take three values: 'steady', 'quasi-steady', and 'unsteady':
 
 .. code:: python
 
     results_obj = 'Tnet3' # name of the object for saving simulation results
     friction = 'unsteady' # or "steady" or "quasi-steady", by default "steady"
-    tm = tsnet.simulation.MOCSimulator(tm, results_obj, friction)
+    tm = tsnetplus.simulation.MOCSimulator(tm, results_obj, friction)
 
 
 Pressure-driven Demand
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-During the transient simulation in TSNet, the demands are treated as
+During the transient simulation in TSNetPlus, the demands are treated as
 pressure-dependent discharge; thus, the actual demands will vary from
 the demands defined in the INP file.
 The actual demands (:math:`d_{actual}`) are modeled based on the
@@ -617,7 +617,7 @@ Surge tanks
 ^^^^^^^^^^^^
 
 The modeling of water hammer protection devices, including the open and closed surge tanks,
-are also incorporated in TSNet.
+are also incorporated in TSNetPlus.
 An open surge tank is modeled as an open chamber connected directly to a pipeline
 and is open to the atmosphere [WYSS93]_.
 Initially, the water head (:math:`z`) in the tank equals to the hydraulic head in the upstream pipeline.
@@ -646,8 +646,8 @@ the above system of equations can be solved at each time step.
 Other devices can be modeled as well by defining the corresponding boundary conditions to
 replace :eq:`open_surge`.
 
-In TSNet, an open surge tank is assumed to exhibit infinite height so that the tank never overflows.
-The user can add an open surge tank to an existing network in the TSNet model by defining the desired
+In TSNetPlus, an open surge tank is assumed to exhibit infinite height so that the tank never overflows.
+The user can add an open surge tank to an existing network in the TSNetPlus model by defining the desired
 location and the cross-sectional area of the surge tank, as shown:
 
 .. code:: python
@@ -662,7 +662,7 @@ In fact, the major disadvantages of open surge tanks is that it typically cannot
 large pressure transients unless the tank is excessively tall and large, which limits its usefulness.
 
 Hence, we also included closed surge tank, i.e., air chamber,
-in TSNet as more realistic water hammer protection devices.
+in TSNetPlus as more realistic water hammer protection devices.
 An air chamber is a relatively small sealed vessel with compressed air at its top and
 water in the bottom [WYSS93]_.
 During transient simulation, the closed surge tank also moderates pressure transients
@@ -711,11 +711,11 @@ total height of the surge tank, and initial water height in the tank:
 Valve Operations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. Two types of valve are included in TSNet: end valve, located on the boundary
+.. Two types of valve are included in TSNetPlus: end valve, located on the boundary
     of a network, and inline valve, located in the middle of the network and
     connected by one pipe on each end.
 
-Valve operations, including closure and opening, are supported in TSNet.
+Valve operations, including closure and opening, are supported in TSNetPlus.
 The default valve shape is gate valve, the valve characteristics curve
 of which is defined according to [STWV96]_.
 The following examples illustrate how to perform valve operations.
@@ -775,7 +775,7 @@ with :math:`m=1` and :math:`m=2` are illustrated in :numref:`valve_opening`.
 Pump Operations
 ^^^^^^^^^^^^^^^^
 
-The TSNet also includes the capability to perform controlled pump operations
+The TSNetPlus also includes the capability to perform controlled pump operations
 by specifying how the pump rotation speed changes over time.
 Explicitly, during pump start-up, the rotational speed of the pump
 is increased based on the user defined operating rule.
@@ -821,7 +821,7 @@ that the reverse flow will be prevented immediately.
 Leaks
 ^^^^^^^
 
-In TSNet, leaks and bursts are assigned to the network nodes.
+In TSNetPlus, leaks and bursts are assigned to the network nodes.
 A leak is defined by specifying the leaking node name and the
 emitter coefficient (:math:`k_l`):
 
@@ -859,7 +859,7 @@ is simulated only during the transient calculation and not included in the
 initial condition calculation.
 In other words, using burst, the user can model new and evolving condition,
 while the leak model simulates an existing leak in the system.
-In TSNet, the burst is assumed to be developed
+In TSNetPlus, the burst is assumed to be developed
 linearly, indicating that the burst area increases linearly from zero to
 a size specified by the user during the specified time period.
 Thus, a burst event can be modeled by defining the start and end time of the
@@ -877,7 +877,7 @@ is fully developed:
 Demand Pulse
 ^^^^^^^^^^^^
 
-TSNet simulates transients generated by instantaneous demand pulse by allowing the demand
+TSNetPlus simulates transients generated by instantaneous demand pulse by allowing the demand
 coefficient to change with time
 We assume that the amplitude of a demand pulse (:math:`pa(t)`) follows a symmetrical trapezoidal
 time-domain function, as illustrated in :numref:`demandpulse`; thus,
@@ -885,7 +885,7 @@ the demand pulse can be modeled by defining the start time (:math:`ts`),
 the total duration (:math:`tc`), the transmission time (:math:`tp`),
 and the peak of the amplitude (:math:`dp`).
 Moreover, it should be noted that the assumed trapezoidal pulse shape is defined by method
-*demandpulse()* in :class:`~tsnet.network.model` module.
+*demandpulse()* in :class:`~tsnetplus.network.model` module.
 It can be easily modified to take any shape with moderate coding efforts.
 Subsequently, the time-varying demand coefficient is defined as
 :math:`k(t) = k_0 + k_0\times pa(t)`.

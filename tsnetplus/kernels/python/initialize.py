@@ -539,7 +539,7 @@ def pump_operating_points(tm: TransientModel) -> TransientModel:
         elif len(points) != 3:
             raise UnsupportedPumpCurveError(
                 f"Pump {pump.name!r} has {len(points)} curve points. "
-                "TSNet supports only one-point or three-point pump curves."
+                "TSNetPlus supports only one-point or three-point pump curves."
             )
         operating_point = (
             pump.initial_flow,

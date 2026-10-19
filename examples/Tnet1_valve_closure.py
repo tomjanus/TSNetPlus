@@ -34,3 +34,8 @@ tm = tsnetplus.simulation.MOCSimulator(tm)
 # report results
 node = ['N2','N3']
 tm.plot_node_head(node)
+
+# The flow rate time history of a link can be retrieved and plotted
+# directly from the transient model.
+link = tm.links['P2']
+print(link.start_node_flowrate)

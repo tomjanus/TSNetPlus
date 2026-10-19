@@ -7,25 +7,25 @@ Installation
 Setup Python Environment
 ------------------------------
 
-TSNet is tested against Python versions 3.5, 3.6, and 3.7.
+TSNetPlus is tested against Python versions 3.10, 3.11, and 3.12.
 It can be installed on Windows, Linux, and Mac OS X operating systems.
 Python distributions, such as Anaconda, are recommended to manage the Python
 environment as they already contain (or easily support installation of) many
 Python packages (e.g. SciPy, NumPy, pandas, pip, matplotlib, etc.) that are
-used in the TSNet package.  For more information on Python package
+used in the TSNetPlus package.  For more information on Python package
 dependencies, see :ref:`Dependencies`.
 
 Stable Release (for users)
 --------------------------
 
-To install TSNet, run this command in your terminal:
+To install TSNetPlus from the sources, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install tsnet
+    $ pip install tsnetplus
 
-This is the preferred method to install tsnet, as it will always install the
-most recent stable release.
+TSNetPlus is not published on PyPI at the time of writing. The command above
+therefore only works from a checkout of the repository.
 
 If you don't have `pip`_ installed, this `Python installation guide`_ can guide
 you through the process.
@@ -37,38 +37,45 @@ you through the process.
 From Sources (for developers)
 -----------------------------
 
-The sources for TSNet can be downloaded from the `Github repo`_.
+The sources for TSNetPlus can be downloaded from the `Github repo`_.
 
 You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/glorialulu/tsnet
+    $ git clone https://github.com/tomjanus/TSNetPlus.git
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/glorialulu/tsnet/tarball/master
+    $ curl  -OL https://github.com/tomjanus/TSNetPlus/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
 .. code-block:: console
 
-    $ python setup.py install
+    $ pip install .
+
+The Numba kernel is an optional dependency and is installed with the
+``speedups`` extra:
+
+.. code-block:: console
+
+    $ pip install ".[speedups]"
 
 
-.. _Github repo: https://github.com/glorialulu/tsnet
-.. _tarball: https://github.com/glorialulu/tsnet/tarball/master
+.. _Github repo: https://github.com/tomjanus/TSNetPlus
+.. _tarball: https://github.com/tomjanus/TSNetPlus/tarball/master
 
 .. _Dependencies:
 
 Dependencies
 ------------
 
-Requirements for TSNet include Python (3.5, 3.6, or 3.7) along with
+Requirements for TSNetPlus include Python (3.10, 3.11, or 3.12) along with
 several Python packages.
-The following Python packages are required::
+The following Python packages are required:
 
 1.  Numpy [VaCV11]_: the fundamental package needed for scientific computing with Python
     included in Anaconda distribution
@@ -89,4 +96,12 @@ The following Python packages are required::
 5.  pytest: Unit Tests engine
     install on a python-enabled command line with `pip install -U pytest`
     https://docs.pytest.org/en/latest/
+
+6.  rich: Rich text formatting used by the logging configuration
+    install on a python-enabled command line with `pip install rich`
+    https://rich.readthedocs.io
+
+7.  numba (optional): just-in-time compiler for the fastest simulation kernel
+    install on a python-enabled command line with `pip install numba`
+    https://numba.pydata.org/
 

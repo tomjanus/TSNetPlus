@@ -6,7 +6,7 @@ Results Structure
 -----------------
 
 Simulation results are returned and saved in the
-:class:`tsnet.network.model.TransientModel` object
+:class:`tsnetplus.network.model.TransientModel` object
 for each node and link in the networks.
 
 Node results include the following attributes:
@@ -57,7 +57,7 @@ Time Step and Time Stamps
 
 Additionally, the time step (in seconds) and the time stamps (in seconds
 from the start of the simulation) are also stored in the
-:class:`tsnet.network.model.TransientModel` object. They can be retrieved
+:class:`tsnetplus.network.model.TransientModel` object. They can be retrieved
 by:
 
 .. code:: python
@@ -66,14 +66,14 @@ by:
     tt = tm.simulation_timestamps
 
 The results can then be plotted with respect to the time stamps using
-**matplotlib** or any other preferred package, as shown in :numref:`tnet2_node`:
+**matplotlib** or any other preferred package, as shown in :numref:`tnet2_node_results`:
 
 .. code:: python
 
     import matplotlib.pyplot as plt
     plt.plot(tt ,head)
 
-.. _tnet2_node:
+.. _tnet2_node_results:
 .. figure:: figures/tnet2_node.png
    :width: 600
    :alt: tnet2_node
@@ -83,14 +83,14 @@ The results can then be plotted with respect to the time stamps using
 Results Retrieval
 ------------------
 
-The :class:`tsnet.network.model.TransientModel` object, including
+The :class:`tsnetplus.network.model.TransientModel` object, including
 the information of the network, operation rules, and the simulated results,
 is saved in the file **results_obj.obj**, located in the current folder.
 The name of the results file is defined by the input parameter `result_obj`.
 If `result_obj` is not given, the default results file is `results.obj`.
 
 To retrieve the results from a previously completed simulation,
-one can read the :class:`tsnet.network.model.TransientModel` object
+one can read the :class:`tsnetplus.network.model.TransientModel` object
 from the **results_obj.obj** file and access results from the objet by:
 
 .. code:: python
@@ -104,7 +104,7 @@ Runtime and Progress
 ---------------------
 
 At the beginning of transient simulation,
-TSNet will report the approximation simulation time
+TSNetPlus will report the approximation simulation time
 based on the calculation time of first few time
 steps and the total number of time steps.
 Additionally, the computation progress will also printed on the screen

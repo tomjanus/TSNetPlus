@@ -1,4 +1,4 @@
-Welcome to TSNet's documentation!
+Welcome to TSNetPlus' documentation!
 ======================================
 
 .. toctree::
@@ -6,6 +6,8 @@ Welcome to TSNet's documentation!
    :caption: Contents:
 
    readme
+   fork
+   performance
    installation
    limitations
    usage
@@ -16,7 +18,7 @@ Welcome to TSNet's documentation!
    contributing
    authors
    history
-   API documentation <apidocs/tsnet>
+   API documentation <apidocs/tsnetplus>
    abbrev
    reference
 

@@ -1,8 +1,7 @@
-"""
-The tsnet.network.control module includes method to define
-network controls of the pump and valve.These control modify
-parameters in the network during transient simulation.
+"""Methods defining the network controls of pumps and valves.
 
+These controls modify the network parameters during the transient
+simulation.
 """
 import numpy as np
 
@@ -208,6 +207,7 @@ def demandpulse(dt, tf, tc, ts, tp, dp):
     """Calculate demand pulse multiplier
 
     Parameters
+    ----------
     dt : float
         Time step
     tf : float

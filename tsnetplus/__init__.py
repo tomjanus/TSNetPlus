@@ -1,4 +1,4 @@
-"""Top-level package for tsnet."""
+"""Top-level package for TSNetPlus."""
 import logging
 from tsnetplus import network
 from tsnetplus import simulation
@@ -8,6 +8,6 @@ from tsnetplus.utils import configure_logging
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
-__author__ = """Lu Xing, Tomasz Janus"""
-__email__ = 'xinglu@utexas.edu, tomasz.k.janus@gmail.com'
-__version__ = '0.2.3'
+__author__ = """Tomasz Janus, Hector Duque"""
+__email__ = 'tomasz.janus@manchester.ac.uk'
+__version__ = '0.4.0'

@@ -1,7 +1,8 @@
-networkx
 pandas
 numpy
 scipy
 matplotlib
 plotly
 wntr
+networkx
+rich

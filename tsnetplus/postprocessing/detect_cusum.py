@@ -38,7 +38,7 @@ def detect_cusum(time, x, threshold, drift, show,
 
     Notes
     -----
-    Tuning of the CUSUM algorithm according to Gustafsson (2000)[1]_:
+    Tuning of the CUSUM algorithm according to Gustafsson (2000) [1]_:
     Start with a very large `threshold`.
     Choose `drift` to one half of the expected change, or adjust `drift` such
     that `g` = 0 more than 50% of the time.
@@ -62,12 +62,12 @@ def detect_cusum(time, x, threshold, drift, show,
     sequential changes is kept. In this case, it is likely that `ta`, `tai`,
     and `taf` will have less values than when `ending` was set to False.
 
-    See this IPython Notebook [2]_.
+    See the reference [2]_ for a worked example.
 
     References
     ----------
     .. [1] Gustafsson (2000) Adaptive Filtering and Change Detection.
-    .. [2] hhttp://nbviewer.ipython.org/github/demotu/BMC/blob/master/notebooks/DetectCUSUM.ipynb
+    .. [2] https://nbviewer.ipython.org/github/demotu/BMC/blob/master/notebooks/DetectCUSUM.ipynb
 
     """
 

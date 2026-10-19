@@ -427,14 +427,15 @@ The initial setting has been changed to open to perform the closure." %name)
         Parameters
         ----------
         name : str or list
-            The name of junctions to add demand pulse
-                rule : list
+            The name of junctions to add demand pulse.
+        rule : list
             Contains paramters to define valve operation rule
-        rule = [tc,ts,stay,dp,m]
-            tc : total duration of the pulse [s]                                                                                                                                        [s]
+            ``rule = [tc, ts, stay, dp]``
+
+            tc : total duration of the pulse [s]
             ts : start time of demand [s]
-            stay: duration of the demand to stay at peak level [s]
-            dp : demand pulse multiplier [uniteless]
+            stay : duration of the demand to stay at peak level [s]
+            dp : demand pulse multiplier [dimensionless]
         """
         [tc, ts, tp, dp] = rule
         demand_node = self.get_node(name)
@@ -461,13 +462,12 @@ The initial setting has been changed to open to perform the closure." %name)
         name : str
             the name of the node to add a surge tank
         shape : list
-            if closed: [As, Ht, Hs]
-                As : cross-sectional area of the surge tank
-                Ht : tank height
-                Hs : initial water height in the surge tank
-            if open: [As]
-        tank_type : int
-            type of the surge tank, "closed" or "open",
+            Geometry of the surge tank. For a closed tank
+            ``[As, Ht, Hs]``, with ``As`` the cross-sectional area of the
+            surge tank, ``Ht`` the tank height and ``Hs`` the initial water
+            height in the surge tank. For an open tank ``[As]``.
+        tank_type : str
+            Type of the surge tank, "closed" or "open",
             by default 'open'
         """
         shape = list(shape)

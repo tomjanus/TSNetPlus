@@ -50,8 +50,8 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr htmlcov/
 	rm -fr .pytest_cache
 
-lint: ## check style with flake8
-	flake8 tsnet tests
+lint: ## check style with flake8 (fork code only; see tox.ini)
+	flake8 tests benchmarks/benchmark_backends.py
 
 test: ## run tests quickly with the default Python
 	py.test
@@ -60,15 +60,14 @@ test-all: ## run tests on every Python version with tox
 	tox
 
 coverage: ## check code coverage quickly with the default Python
-	coverage run --source tsnet -m pytest
+	coverage run --source tsnetplus -m pytest
 	coverage report -m
 	coverage html
 	$(BROWSER) htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/tsnet.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ tsnet
+	rm -f docs/apidocs/tsnetplus*.rst docs/apidocs/modules.rst
+	sphinx-apidoc -o docs/apidocs/ tsnetplus
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
