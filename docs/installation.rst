@@ -7,7 +7,7 @@ Installation
 Setup Python Environment
 ------------------------------
 
-TSNetPlus is tested against Python versions 3.10, 3.11, and 3.12.
+TSNetPlus is tested against Python versions 3.12, 3.13, and 3.14.
 It can be installed on Windows, Linux, and Mac OS X operating systems.
 Python distributions, such as Anaconda, are recommended to manage the Python
 environment as they already contain (or easily support installation of) many
@@ -73,7 +73,7 @@ The Numba kernel is an optional dependency and is installed with the
 Dependencies
 ------------
 
-Requirements for TSNetPlus include Python (3.10, 3.11, or 3.12) along with
+Requirements for TSNetPlus include Python (3.12, 3.13, or 3.14) along with
 several Python packages.
 The following Python packages are required:
 
@@ -92,6 +92,9 @@ The following Python packages are required:
 4.  WNTR [WNTRSi]_: Water Network Tool for Resilience
     install on a python-enabled command line with `pip install wntr`
     http://wntr.readthedocs.io
+    WNTR does not publish pre-compiled wheels for Python 3.14, so on that
+    version it is built from source and a C++ compiler must be available
+    (``CXX=g++`` for example)
 
 5.  pytest: Unit Tests engine
     install on a python-enabled command line with `pip install -U pytest`

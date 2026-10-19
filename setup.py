@@ -37,9 +37,9 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
     ],
     description=(
         "TSNetPlus is a fork of TSNet that conducts transient simulation "
@@ -50,7 +50,7 @@ setup(
     install_requires=requirements,
     extras_require={'speedups': speedups_requirements},
     license="MIT license",
-    python_requires='>=3.10',
+    python_requires='>=3.12',
     long_description=readme + '\n\n' + history,
     long_description_content_type='text/x-rst',
     include_package_data=True,

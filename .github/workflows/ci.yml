@@ -9,10 +9,15 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      # WNTR publishes wheels only up to Python 3.13, so on 3.14 it is built
+      # from source and needs a C++ compiler.
+      CXX: g++
+      CC: gcc
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

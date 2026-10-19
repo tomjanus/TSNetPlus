@@ -14,11 +14,11 @@ build:
 
 requirements:
   host:
-    - python >=3.10
+    - python >=3.12
     - pip
     - setuptools
   run:
-    - python >=3.10
+    - python >=3.12
     - pandas
     - numpy
     - scipy

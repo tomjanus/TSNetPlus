@@ -9,7 +9,7 @@ TSNetPlus
         :target: https://github.com/glorialulu/TSNet
         :alt: Fork of TSNet
 
-.. image:: https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue?logo=python
+.. image:: https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue?logo=python
         :alt: Supported Python versions
 
 .. image:: https://github.com/tomjanus/TSNetPlus/actions/workflows/ci.yml/badge.svg

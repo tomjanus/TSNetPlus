@@ -23,8 +23,8 @@ purpose is faster transient simulation.
 5. Fixed ``configure_logging()``, which configured a ``tsnet`` logger instead
    of the ``tsnetplus`` logger used by the package modules and therefore had
    no effect on the package log messages.
-6. Dropped Python 3.6 and 3.7 support; the package now requires Python 3.10
-   or newer.
+6. Dropped support for Python versions older than 3.12; the package requires
+   Python 3.12 or newer and is tested on 3.12, 3.13 and 3.14.
 7. Updated the documentation, which builds with Sphinx again, and publish it
    at https://tomjanus.github.io/TSNetPlus through GitHub Pages.
 
