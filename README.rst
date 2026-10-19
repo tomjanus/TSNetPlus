@@ -12,6 +12,14 @@ TSNetPlus
 .. image:: https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue?logo=python
         :alt: Supported Python versions
 
+.. image:: https://github.com/tomjanus/TSNetPlus/actions/workflows/ci.yml/badge.svg
+        :target: https://github.com/tomjanus/TSNetPlus/actions/workflows/ci.yml
+        :alt: CI status
+
+.. image:: https://github.com/tomjanus/TSNetPlus/actions/workflows/docs.yml/badge.svg
+        :target: https://github.com/tomjanus/TSNetPlus/actions/workflows/docs.yml
+        :alt: Documentation build status
+
 **TSNetPlus** is a fork of `TSNet <https://github.com/glorialulu/TSNet>`_,
 the open-source Python package that performs transient simulation in water
 distribution networks using the Method of Characteristics (MOC).
@@ -27,7 +35,7 @@ documentation.
 * Free software: MIT license
 * GitHub: https://github.com/tomjanus/TSNetPlus.git
 * Upstream project: https://github.com/glorialulu/TSNet
-* Documentation: https://github.com/tomjanus/TSNetPlus/tree/master/docs
+* Documentation: https://tomjanus.github.io/TSNetPlus
 
 Overview
 --------
@@ -108,7 +116,7 @@ Contact
 -------
 
 * Tomasz Janus, the University of Manchester, tomasz.janus@manchester.ac.uk
-* Hector Duque, De Montfort University
+* Hector Duque, De Montfort University, hector.j.castro@gmail.com
 
 The authors of the upstream TSNet package, which TSNetPlus is based on, are:
 

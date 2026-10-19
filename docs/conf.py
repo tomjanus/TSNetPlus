@@ -75,8 +75,9 @@ templates_path = ['_templates']
 # source_suffix = ['.rst', '.md']
 source_suffix = '.rst'
 
-# The master toctree document.
-master_doc = 'content'
+# The master toctree document. GitHub Pages serves _site/index.html at the
+# root of the site, so the landing page has to be index.rst.
+root_doc = 'index'
 
 # General information about the project.
 project = u'TSNetPlus'
@@ -136,6 +137,11 @@ html_static_path = ['_static']
 
 html_show_sphinx = False
 
+# The documentation is published as a GitHub Pages project site, so Sphinx
+# has to build absolute links; without this, static files and cross-page
+# links break when the page is opened from a subdirectory.
+html_baseurl = 'https://tomjanus.github.io/TSNetPlus/'
+
 
 # -- Options for HTMLHelp output ---------------------------------------
 
@@ -167,7 +173,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass
 # [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'TSNetPlus.tex',
+    (root_doc, 'TSNetPlus.tex',
      u'TSNetPlus Documentation',
      u"Tomasz Janus, Hector Duque", 'manual'),
 ]
@@ -179,7 +185,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'TSNetPlus',
+    (root_doc, 'TSNetPlus',
      u'TSNetPlus Documentation',
      [author], 1)
 ]
@@ -191,7 +197,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'TSNetPlus',
+    (root_doc, 'TSNetPlus',
      u'TSNetPlus Documentation',
      author,
      'TSNetPlus',

@@ -25,7 +25,8 @@ purpose is faster transient simulation.
    no effect on the package log messages.
 6. Dropped Python 3.6 and 3.7 support; the package now requires Python 3.10
    or newer.
-7. Updated the documentation, which builds with Sphinx again.
+7. Updated the documentation, which builds with Sphinx again, and publish it
+   at https://tomjanus.github.io/TSNetPlus through GitHub Pages.
 
 The results of the optimised kernels agree with the upstream reference
 implementation to within the deviations measured in the performance
